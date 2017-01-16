@@ -4,15 +4,15 @@
 #include <string>
 #include <iostream>
 #include <boost/asio.hpp>
-
 using boost::asio::ip::tcp;
-
+class encDec;
 class ConnectionHandler {
 private:
 	const std::string host_;
 	const short port_;
 	boost::asio::io_service io_service_;   // Provides core I/O functionality
 	tcp::socket socket_; 
+	encDec encoderDecoder;
  
 public:
     ConnectionHandler(std::string host, short port);
@@ -37,7 +37,7 @@ public:
 	
     // Read an ascii line from the server
     // Returns false in case connection closed before a newline can be read.
-    bool getLine(std::string& line);
+    bool getLine(std::vector<char> bytes);
 	
 	// Send an ascii line from the server
     // Returns false in case connection closed before all the data is sent.

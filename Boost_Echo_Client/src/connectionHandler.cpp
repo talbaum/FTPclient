@@ -1,7 +1,9 @@
 
 #include "../include/connectionHandler.h"
+#include "encDec.cpp"
 #include <boost/thread.hpp>
 using boost::asio::ip::tcp;
+class encDec;
 
 using std::cin;
 using std::cout;
@@ -10,15 +12,20 @@ using std::endl;
 using std::string;
 using boost::thread;
  
-ConnectionHandler::ConnectionHandler(string host, short port): host_(host), port_(port), io_service_(), socket_(io_service_){}
+bool approve=false;
+encDec encoderDecoder;
+
+ConnectionHandler::ConnectionHandler(string host, short port): host_(host), port_(port), io_service_(), socket_(io_service_){
+	this->encoderDecoder = new encDec();
+}
     
 ConnectionHandler::~ConnectionHandler() {
     close();
 }
  
 bool ConnectionHandler::connect() {
-	boost::thread reader(&ConnectionHandler::getFromServer,this); //the thread who reads from the server all the time
-	boost::thread writer(&ConnectionHandler::SendToServer,this); //the thread who waits for user command and acts by it
+	//boost::thread reader(&ConnectionHandler::getFromServer,this); //the thread who reads from the server all the time
+	//boost::thread writer(&ConnectionHandler::SendToServer,this); //the thread who waits for user command and acts by it
 
 	std::cout << "Starting connect to "
         << host_ << ":" << port_ << std::endl;
@@ -29,8 +36,8 @@ bool ConnectionHandler::connect() {
 		if (error)
 			throw boost::system::system_error(error);
 		else{
-			reader.join();
-			writer.join();
+			//reader.join();
+			//writer.join();
 		}
     }
     catch (std::exception& e) {
@@ -80,14 +87,55 @@ void ConnectionHandler::SendToServer(){
 
 }
  
-bool ConnectionHandler::getLine(std::string& line) {
-    return getFrameAscii(line, '\n');
+bool ConnectionHandler::getLine(std::vector<char> bytes) {
+	//std::vector<char> ans;
+    //return getFrameAscii(line, '\n');
+	//char* bytes[] = new char[512];
+	int index=0;
+    char ch;
+        // Stop when we encounter the null character.
+        // Notice that the null character is not appended to the frame string.
+        try {
+    		do{
+    			getBytes(&ch, 1);
+    			bytes.push_back(ch);
+    			//bytes[index]= ;
+                //frame.append(1, ch);
+            }while (ch!='\0');
+        } catch (std::exception& e) {
+            std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
+            return false;
+        }
+        return true;
 }
 
 bool ConnectionHandler::sendLine(std::string& line) {
-    return sendFrameAscii(line, '\n');
+	char* ans = this->encoderDecoder.sendFunction(line);
+	short OP = this->encoderDecoder.bytesToShort(ans);
+
+	switch (OP){
+	case 1: //read request
+		break;
+
+	case 2: //write request
+		break;
+
+	case 7: // login request
+		return sendBytes(ans, sizeof(ans));
+		break;
+
+	case 8: //
+		return sendBytes(ans, sizeof(ans));
+		break;
+
+	case 10: //
+		return sendBytes(ans, sizeof(ans));
+		break;
+	}
+
 }
  
+//not in use!!!!
 bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
     char ch;
     // Stop when we encounter the null character. 

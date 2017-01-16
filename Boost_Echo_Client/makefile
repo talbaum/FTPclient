@@ -1,4 +1,4 @@
-CFLAGS:=-c -Wall -Weffc++ -g -std=c++11 -Iinclude
+CFLAGS:=-c -Wall -Weffc++ -g -Wno-multichar -std=c++11 -Iinclude
 LDFLAGS:=-lboost_system -lboost_locale
 
 all: EchoClient

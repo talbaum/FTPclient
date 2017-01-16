@@ -12,17 +12,21 @@
 #include <vector>
 #include <fstream>
 using namespace std;
-std::string curLine;
+
 int len=0;
 int OP;
+bool expectDir=false;
+bool wannaWrite=false;
 int ACKblock=-1;
-std::string nameOfFile="";
-std::vector<char> fileToRead;
+string nameOfFile="";
+vector<char> fileToRead;
 int lastblockofdata=0;
+ConnectionHandler* conHan;
 
 encDec::encDec() {
 	//this.bytes[] = new char[len];
 	OP=0;
+	conHan = NULL;
 }
 
 encDec::~encDec() {
@@ -55,6 +59,8 @@ char* encDec::sendFunction(string& line){
 	}
 
 	else if (command.compare("WRQ")){
+		nameOfFile=command.substr(index,command.size()-1);
+		wannaWrite=true;
 		ans=CommonPacketWithString(command.substr(index));
 		encDec::shortToBytes(2,ans);
 	}
@@ -63,6 +69,7 @@ char* encDec::sendFunction(string& line){
 		//ans=DIRQ(command.substr(index));
 		ans= new char[2];
 		encDec::shortToBytes(6,ans);
+		expectDir=true;
 
 	}
 
@@ -76,7 +83,7 @@ char* encDec::sendFunction(string& line){
 }
 
 
-char* encDec::CommonPacketWithString(std::string myLine){
+char* encDec::CommonPacketWithString(string myLine){
 	char* ans= NULL;
 	if (myLine.size()<1){
 		//wrong command error
@@ -150,7 +157,7 @@ void encDec::shortToBytes(short num, char* bytesArr)
     bytesArr[1] = (num & 0xFF);
 }
 
-char* encDec::decode(std::vector<char> &bytes,ConnectionHandler conHan){
+char* encDec::decode(vector<char>& bytes,ConnectionHandler* conHan){
 char* bytearr = new char[2];
 bytearr[0]=bytes[0];
 bytearr[1]=bytes[1];
@@ -158,26 +165,132 @@ bytearr[1]=bytes[1];
 
 	switch (OP){
 	case 3:
-		handleFileRead(bytes,conHan);
+		if (expectDir){
+			handleDIR(bytes);
+			expectDir=false;
+		}
+		else
+			handleFileRead(bytes,conHan);
 		break;
-
 	case 4:
 		bytearr[0]=bytes[2];
 		bytearr[1]=bytes[3];
 		ACKblock=bytesToShort(bytearr);
+		if ((wannaWrite)&(ACKblock==0)){
+			handleFileWrite(conHan);
+		}
 		break;
 
 	case 5:
+		handleError(bytes);
 		break;
 
 	case 9:
+		handleBroadcast(bytes);
+		break;
+
+	default:
+		cout <<"something went wrong, maybe bad packet, this is your OP: " << OP <<endl;
 		break;
 	}
 
-return 0;
+return bytearr;
 }
 
-void encDec::handleFileRead(std::vector<char> &bytes,ConnectionHandler conHan){
+void encDec::handleBroadcast(vector<char> bytes){
+	char delOrAdd = bytes[2];
+	int whichOne = delOrAdd;
+	string msg1;
+	string msg2;
+	if (whichOne==1)
+		msg1="add";
+	else if (whichOne==0)
+		msg1="del";
+	bytes.resize(3,bytes.size()-1);
+	string File(bytes.begin(),bytes.end());
+
+	cout << "BCAST <" << msg1 << "><" << File << ">" << endl;
+}
+
+void encDec::handleDIR(vector<char> bytes){
+	bytes.resize(2,bytes.size()-1);
+	string name;
+	char end = '\0';
+	char cur;
+	while (!bytes.empty()){
+		cur=bytes.back();
+		bytes.pop_back();
+		if ((cur==end)&(!name.empty()))
+			cout << name << endl;
+		else
+			name=+cur;
+	}
+}
+
+void encDec::handleError(vector<char> bytes){
+	char* bytearr = new char[2];
+	bytearr[0]=bytes[2];
+	bytearr[1]=bytes[3];
+	int errorCode = bytesToShort(bytearr);
+	bytes.resize(6,bytes.size()-1);
+	string ErrorDesc(bytes.begin(),bytes.end());
+	cout << "Error" << errorCode << " - " <<ErrorDesc <<endl;
+}
+void encDec::handleFileWrite(ConnectionHandler* conHan){
+	wannaWrite=false;
+	const char* name = nameOfFile.c_str();
+	std::ifstream file(name , std::ios::binary);
+	file.unsetf(std::ios::skipws);
+	std::streampos fileSize;
+	file.seekg(0,std::ios::end);
+	fileSize=file.tellg();
+	file.seekg(0,std::ios::beg);
+
+	vector<char> fileInVector;
+	fileInVector.reserve(fileSize);
+	fileInVector.insert(fileInVector.begin(), std::istream_iterator<char>(file),std::istream_iterator<char>());
+
+	int block=1;
+	vector<char> packet;
+	vector<char> curData;
+	//int size;
+	while (!fileInVector.empty()){
+		char* OpIn = new char[2];
+		shortToBytes(3,OpIn);
+		packet.insert(packet.begin(),OpIn[0],OpIn[1]);
+		if (fileInVector.size()>512){
+			for (int i=0;i<512;i++){
+				char tmp = fileInVector.front();
+				fileInVector.erase(fileInVector.begin());
+				curData.push_back(tmp);
+			}
+		}
+		else{
+			while (!fileInVector.empty()){
+				char tmp = fileInVector.front();
+				fileInVector.erase(fileInVector.begin());
+				curData.push_back(tmp);
+			}
+		}
+		char* sizeIn = new char[2];
+		shortToBytes(curData.size(),OpIn);
+		packet.insert(packet.end(),sizeIn[0],sizeIn[1]);
+		char* blockIn = new char[2];
+		shortToBytes(block,OpIn);
+		block++;
+		packet.insert(packet.end(),blockIn[0],blockIn[1]);
+		packet.insert(packet.end(),curData.begin(),curData.end());
+		conHan->sendBytes(&packet[0],packet.size());
+
+		while (ACKblock!=block-1){
+			//wait!!
+		}
+		packet.clear();
+		curData.clear();
+	}
+}
+
+void encDec::handleFileRead(vector<char> bytes,ConnectionHandler* conHan){
 	char* bytearr = new char[2];
 	bytearr[0]=bytes[2];
 	bytearr[1]=bytes[3];
@@ -191,11 +304,15 @@ void encDec::handleFileRead(std::vector<char> &bytes,ConnectionHandler conHan){
 		lastblockofdata++;
 		fileToRead.insert(fileToRead.end(),bytes.begin(),bytes.end());
 		char* approve = makeACK(block);
-		conHan.sendBytes(approve,sizeof(approve));
+		conHan->sendBytes(approve,sizeof(approve));
 		if (size<512){
-			ofstream myFile(nameOfFile, std::ofstream::out | std::ofstream::binary);
+			const char* name = nameOfFile.c_str();
+			ofstream myFile;
+			myFile.open(name, std::ofstream::out | ofstream::binary);
 			myFile.write(fileToRead.data(),fileToRead.size());
-
+			fileToRead.clear();
+			lastblockofdata=0;
+			ACKblock=-1;
 		}
 	}
 	else{

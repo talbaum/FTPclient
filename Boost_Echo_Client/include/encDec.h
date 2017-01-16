@@ -5,20 +5,22 @@
  *      Author: amit
  */
 #include <string>
+//#include "../include/connectionHandler.h"
 #ifndef SRC_ENCDEC_H_
 #define SRC_ENCDEC_H_
 using namespace std;
-
+class ConnectionHandler;
 class encDec {
 private:
 	char bytes[];
 	int OP;
 	std::string CurLine;
+	ConnectionHandler* conHan;
 public:
 	encDec();
 	virtual ~encDec();
 	//char* encode(const std::string& s);
-	char* decode(std::vector<char>& bytes,ConnectionHandler conHan);
+	char* decode(std::vector<char>& bytes,ConnectionHandler* conHan);
 	short getOp();
 	char* sendFunction (std::string& s); //get a line from the user and do the right action based on it and gets the packet that need to send to the server.
 	short bytesToShort(char* bytesArr); //takes 2 bytes and make them a short (for OP and block)
@@ -29,7 +31,11 @@ public:
 	char* WRQ(std::string myLine);
 	char* RRQ(std::string myLine);
 	char* CommonPacketWithString(std::string myLine);
-	void handleFileRead(std::vector<char> &bytes,ConnectionHandler conHan);
+	void handleFileRead(vector<char> bytes,ConnectionHandler* conHan);
+	void handleFileWrite(ConnectionHandler* conHan);
+	void handleError(vector<char> bytes);
+	void handleBroadcast(vector<char> bytes);
+	void handleDIR(vector<char> bytes);
 	char* makeACK (int block);
 };
 

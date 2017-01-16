@@ -3,7 +3,7 @@
 #include "encDec.cpp"
 #include <boost/thread.hpp>
 using boost::asio::ip::tcp;
-class encDec;
+//class encDec;
 
 using std::cin;
 using std::cout;
@@ -13,14 +13,15 @@ using std::string;
 using boost::thread;
  
 bool approve=false;
-encDec encoderDecoder;
+encDec* encoderDecoder = new encDec;
 
 ConnectionHandler::ConnectionHandler(string host, short port): host_(host), port_(port), io_service_(), socket_(io_service_){
-	this->encoderDecoder = new encDec();
+
 }
     
 ConnectionHandler::~ConnectionHandler() {
     close();
+    //delete encoderDecoder*;
 }
  
 bool ConnectionHandler::connect() {
@@ -133,6 +134,7 @@ bool ConnectionHandler::sendLine(std::string& line) {
 		break;
 	}
 
+	return true;
 }
  
 //not in use!!!!

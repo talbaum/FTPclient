@@ -27,7 +27,7 @@ int main (int argc, char *argv[]) {
     return 0;
 }
 
-void reader(ConnectionHandler connectionHandler){
+void reader(ConnectionHandler connectionHandler1){
 	// We can use one of three options to read data from the server:
 	        // 1. Read a fixed number of characters
 	        // 2. Read a line (up to the newline character using the getline() buffered reader
@@ -36,17 +36,18 @@ void reader(ConnectionHandler connectionHandler){
 	        //std::string answer;
 	        // Get back an answer: by using the expected number of bytes (len bytes + newline delimiter)
 	        // We could also use: connectionHandler.getline(answer) and then get the answer without the newline char at the end
-	        if (!connectionHandler.getLine(bytes)) {
+	        if (!connectionHandler1.getLine(bytes)) {
 	            std::cout << "Disconnected. Exiting...\n" << std::endl;
 	            break;
 	        }
-	        len=bytes.size();
+	        int len=bytes.size();
 			//len=answer.length();
 			// A C string must end with a 0 char delimiter.  When we filled the answer buffer from the socket
 			// we filled up to the \n char - we must make sure now that a 0 char is also present. So we truncate last character.
 	        bytes.resize(len-1);
 	        //answer.resize(len-1);
-	        connectionHandler.encoderDecoder.decode(bytes);
+	        ConnectionHandler* tmpthis = this;
+	        connectionHandler1.encoderDecoder.decode(bytes,tmpthis);
 
 }
 

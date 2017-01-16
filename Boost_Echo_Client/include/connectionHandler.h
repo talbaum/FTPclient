@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <boost/asio.hpp>
+#include "../include/encDec.h"
 using boost::asio::ip::tcp;
 class encDec;
 class ConnectionHandler {
@@ -12,9 +13,10 @@ private:
 	const short port_;
 	boost::asio::io_service io_service_;   // Provides core I/O functionality
 	tcp::socket socket_; 
-	encDec encoderDecoder;
+
  
 public:
+	encDec encoderDecoder;
     ConnectionHandler(std::string host, short port);
     virtual ~ConnectionHandler();
  

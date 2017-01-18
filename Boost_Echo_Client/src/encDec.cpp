@@ -6,11 +6,14 @@
  */
 
 #include "../include/encDec.h"
+#include "../include/connectionHandler.h"
 #include <stdio.h>
 #include <string>
+#include <vector>
 #include <iostream>
 #include <vector>
 #include <fstream>
+//#include "../include/connectionHandler.h"
 using namespace std;
 
 int len=0;
@@ -78,6 +81,9 @@ char* encDec::sendFunction(string& line){
 		ans= new char[2];
 		encDec::shortToBytes(10,ans);
 	}
+	else{
+		//wrong command error
+	}
 
 	return ans;
 }
@@ -94,7 +100,7 @@ char* encDec::CommonPacketWithString(string myLine){
 		unsigned int index=2;
 		std::string NAME;
 
-		while ((myLine.size()<index) & (myLine.at(index)!=' ')){
+		while ((myLine.size()>index) & (myLine.at(index)!=' ')){
 			NAME.push_back(myLine.at(index));
 			index++;
 		}
@@ -157,7 +163,7 @@ void encDec::shortToBytes(short num, char* bytesArr)
     bytesArr[1] = (num & 0xFF);
 }
 
-char* encDec::decode(vector<char>& bytes,ConnectionHandler* conHan){
+char* encDec::decode(std::vector<char>& bytes,ConnectionHandler* conHan){
 char* bytearr = new char[2];
 bytearr[0]=bytes[0];
 bytearr[1]=bytes[1];
@@ -197,7 +203,7 @@ bytearr[1]=bytes[1];
 return bytearr;
 }
 
-void encDec::handleBroadcast(vector<char> bytes){
+void encDec::handleBroadcast(std::vector<char>& bytes){
 	char delOrAdd = bytes[2];
 	int whichOne = delOrAdd;
 	string msg1;
@@ -212,7 +218,7 @@ void encDec::handleBroadcast(vector<char> bytes){
 	cout << "BCAST <" << msg1 << "><" << File << ">" << endl;
 }
 
-void encDec::handleDIR(vector<char> bytes){
+void encDec::handleDIR(std::vector<char>& bytes){
 	bytes.resize(2,bytes.size()-1);
 	string name;
 	char end = '\0';
@@ -227,7 +233,7 @@ void encDec::handleDIR(vector<char> bytes){
 	}
 }
 
-void encDec::handleError(vector<char> bytes){
+void encDec::handleError(std::vector<char>& bytes){
 	char* bytearr = new char[2];
 	bytearr[0]=bytes[2];
 	bytearr[1]=bytes[3];
@@ -290,7 +296,7 @@ void encDec::handleFileWrite(ConnectionHandler* conHan){
 	}
 }
 
-void encDec::handleFileRead(vector<char> bytes,ConnectionHandler* conHan){
+void encDec::handleFileRead(std::vector<char>& bytes,ConnectionHandler* conHan){
 	char* bytearr = new char[2];
 	bytearr[0]=bytes[2];
 	bytearr[1]=bytes[3];

@@ -1,6 +1,6 @@
 
 #include "../include/connectionHandler.h"
-#include "encDec.cpp"
+#include "../include/encDec.h"
 #include <boost/thread.hpp>
 using boost::asio::ip::tcp;
 //class encDec;
@@ -13,10 +13,10 @@ using std::string;
 using boost::thread;
  
 bool approve=false;
-encDec* encoderDecoder = new encDec;
+encDec* encoderDecoder;
 
 ConnectionHandler::ConnectionHandler(string host, short port): host_(host), port_(port), io_service_(), socket_(io_service_){
-
+	encDec* encoderDecoder = new encDec();
 }
     
 ConnectionHandler::~ConnectionHandler() {
@@ -111,8 +111,8 @@ bool ConnectionHandler::getLine(std::vector<char> bytes) {
 }
 
 bool ConnectionHandler::sendLine(std::string& line) {
-	char* ans = this->encoderDecoder.sendFunction(line);
-	short OP = this->encoderDecoder.bytesToShort(ans);
+	char* ans = this->encoderDecoder->sendFunction(line);
+	short OP = this->encoderDecoder->bytesToShort(ans);
 
 	switch (OP){
 	case 1: //read request

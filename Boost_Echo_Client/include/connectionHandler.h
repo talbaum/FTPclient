@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 #include <boost/asio.hpp>
-#include "../include/encDec.h"
+//#include "../include/encDec.h"
 using boost::asio::ip::tcp;
 class encDec;
 class ConnectionHandler {
@@ -16,10 +16,11 @@ private:
 
  
 public:
-	encDec encoderDecoder;
+
     ConnectionHandler(std::string host, short port);
     virtual ~ConnectionHandler();
- 
+    encDec *encoderDecoder;
+
     // Connect to the remote machine
     bool connect();
  

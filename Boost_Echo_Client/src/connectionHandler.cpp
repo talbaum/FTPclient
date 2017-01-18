@@ -25,21 +25,15 @@ ConnectionHandler::~ConnectionHandler() {
 }
  
 bool ConnectionHandler::connect() {
-	//boost::thread reader(&ConnectionHandler::getFromServer,this); //the thread who reads from the server all the time
-	//boost::thread writer(&ConnectionHandler::SendToServer,this); //the thread who waits for user command and acts by it
-
 	std::cout << "Starting connect to "
         << host_ << ":" << port_ << std::endl;
     try {
 		tcp::endpoint endpoint(boost::asio::ip::address::from_string(host_), port_); // the server endpoint
+		cout << "inside" << endl;
 		boost::system::error_code error;
 		socket_.connect(endpoint, error);
 		if (error)
 			throw boost::system::system_error(error);
-		else{
-			//reader.join();
-			//writer.join();
-		}
     }
     catch (std::exception& e) {
         std::cerr << "Connection failed (Error: " << e.what() << ')' << std::endl;

@@ -44,46 +44,41 @@ bool ConnectionHandler::connect() {
  
 bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
     size_t tmp = 0;
-	boost::system::error_code error;
+    boost::system::error_code error;
     try {
         while (!error && bytesToRead > tmp ) {
-        	cout << "tmp is: " << tmp <<endl;
-			tmp += socket_.read_some(boost::asio::buffer(bytes+tmp, bytesToRead-tmp), error);			
+            tmp += socket_.read_some(boost::asio::buffer(bytes+tmp, bytesToRead-tmp), error);
         }
-		if(error)
-			throw boost::system::system_error(error);
+        if(error)
+            throw boost::system::system_error(error);
     } catch (std::exception& e) {
-        std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
+        std::cerr << "recv failed  1 (Error: " << e.what() << ')' << std::endl;
         return false;
     }
-    cout << "tmp is: " << tmp <<endl;
     return true;
 }
 
 
 bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
     int tmp = 0;
-    int counter=0;
-	boost::system::error_code error;
-	cout << "in sendbytes with " <<bytesToWrite <<"bytes to write and the bytes array is " << bytes[6] <<endl;
+    boost::system::error_code error;
     try {
         while (!error && bytesToWrite > tmp ) {
-			tmp += socket_.write_some(boost::asio::buffer(bytes + tmp, bytesToWrite - tmp), error);
-			counter++;
+            tmp += socket_.write_some(boost::asio::buffer(bytes + tmp, bytesToWrite - tmp), error);
         }
-		if(error)
-			throw boost::system::system_error(error);
+        if(error)
+            throw boost::system::system_error(error);
     } catch (std::exception& e) {
-        std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
+        std::cerr << "recv failed  3 (Error: " << e.what() << ')' << std::endl;
         return false;
     }
-    cout <<counter << endl;
-    cout <<tmp << endl;
     return true;
 }
  
-bool ConnectionHandler::getLine(std::vector<char> bytes) {
-    return getFrameAscii(bytes, '\0');
+bool ConnectionHandler::getLine(std::vector<char>& bytes) {
+	//cout << "getting line " << endl;
+	char deli = '\0';
+    return getFrameAscii(bytes, deli);
 }
 
 bool ConnectionHandler::sendLine(std::string& line) {
@@ -126,21 +121,39 @@ bool ConnectionHandler::sendLine(std::string& line) {
 }
  
 //not in use!!!!
-bool ConnectionHandler::getFrameAscii(std::vector<char> frame, char delimiter) {
+bool ConnectionHandler::getFrameAscii(std::vector<char>& frame, char delimiter) {
     char ch;
     // Stop when we encounter the null character. 
     // Notice that the null character is not appended to the frame string.
     try {
 		do{
-			getBytes(&ch, 1);
-            frame.insert(frame.begin(),ch);
+			 if (!getBytes(&ch, 1)){
+				 return false;
+			 }
+			 if (delimiter != ch){
+            frame.push_back(ch);
+            cout <<"the size is " << frame.size()  << ",the added char is : "<< ch <<endl;
+			 }
         }while (delimiter != ch);
     } catch (std::exception& e) {
-        std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
+    	cout <<"inside error!!" <<endl;
+        std::cerr << "recv failed 4 (Error: " << e.what() << ')' << std::endl;
         return false;
     }
-    cout << frame.size() <<endl;
+    cout <<"RETURNING true" <<endl;
     return true;
+}
+
+void ConnectionHandler::charToVector (char* source, std::vector<char>* vec){
+	for (unsigned int i=0;i<sizeof(source);i++){
+		(*vec)[i]=source[i];
+	}
+}
+
+void ConnectionHandler::vectorToChar(char* tobe, std::vector<char>* source){
+	for (unsigned int i=0;i<(*source).size();i++){
+		tobe[i]=(*source)[i];
+	}
 }
  
 bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter) {

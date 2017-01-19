@@ -29,7 +29,6 @@ ConnectionHandler* conHan;
 int sizeofpacket=0;
 
 encDec::encDec() {
-	//this.bytes[] = new char[len];
 	OP=0;
 	conHan = NULL;
 }
@@ -41,6 +40,7 @@ encDec::~encDec() {
 int encDec::Getsizeofpacket(){
 	return sizeofpacket;
 }
+
 char* encDec::sendFunction(string& line){
 	string command("");
 	cout << "sendfuction entered" << endl;
@@ -53,13 +53,8 @@ char* encDec::sendFunction(string& line){
 
 	if (command=="LOGRQ"){
 		cout << "sendfuction entered LOGRQ " << endl;
-		cout << command << endl;
-		cout << index << endl;
 		ans=CommonPacketWithString(line.substr(index+1));
-		cout <<ans[6] << endl;
 		encDec::shortToBytes(7,ans);
-		//encDec::shortToBytes(7,ans);
-		cout <<bytesToShort(ans) << endl;
 	}
 
 	else if (command=="DELRQ"){
@@ -71,16 +66,26 @@ char* encDec::sendFunction(string& line){
 	else if (command=="RRQ"){
 		cout << "sendfuction entered RRQ " << endl;
 		nameOfFile=command.substr(index+1,line.size()-1);
+		if (nameOfFile.size()>0){
 		ans=CommonPacketWithString(command.substr(index+1));
 		encDec::shortToBytes(1,ans);
+		}
+		else{
+			cout << "wrong write command" << endl;
+		}
 	}
 
 	else if (command=="WRQ"){
 		cout << "sendfuction entered WRQ " << endl;
 		nameOfFile=command.substr(index,command.size()-1);
+		if (nameOfFile.size()>0){
 		wannaWrite=true;
 		ans=CommonPacketWithString(command.substr(index+1));
 		encDec::shortToBytes(2,ans);
+		}
+		else{
+			cout << "wrong write command" << endl;
+		}
 	}
 
 	else if (command=="DIRQ"){
@@ -102,7 +107,8 @@ char* encDec::sendFunction(string& line){
 	else{
 		cout << "you entered a wrong command" << endl;
 	}
-	//cout << ans << " and the length of ans" << ans[5] << endl;
+
+
 	return ans;
 }
 
@@ -111,13 +117,11 @@ char* encDec::CommonPacketWithString(string myLine){
 	char* ans= NULL;
 
 	if (myLine.size()<1){
-		//wrong command error
 		cout << "wrong command was entered" <<endl;
 	}
 	else{
 		sizeofpacket = 2+myLine.size()+1;
 		char* packet = new char[sizeofpacket];
-		//encDec::shortToBytes(7,packet);
 		unsigned int index=0;
 		std::string NAME;
 
@@ -126,12 +130,10 @@ char* encDec::CommonPacketWithString(string myLine){
 			index++;
 		}
 		if (NAME.size()!=myLine.size()){
-			cout << NAME << "..." << myLine <<endl;
 			cout << "wrong command was entered" <<endl;
 			//error - wrong command
 		}
 		else{
-			cout << "NAME IS" << NAME << endl;
 			char* packet2 = encDec::stringToBytes(NAME);
 			index=2;
 			unsigned int index2=0;
@@ -140,15 +142,9 @@ char* encDec::CommonPacketWithString(string myLine){
 				index++;
 				index2++;
 			}
-			//index++;
 			packet[index]='0';
-			cout << "index of last 0 is "<< index << endl;
+			cout << "packer created is this many bytes: "<< index+1 << endl;
 
-			//unsigned char* uc;
-
-			for (unsigned int i=0;i< 2+myLine.size()+1;i++){
-				cout <<"char" << i <<"is:" << packet[i] << endl;
-			}
 		ans = packet;
 		}
 	}
@@ -178,7 +174,7 @@ void encDec::shortToBytes(short num, char* bytesArr)
 }
 
 char* encDec::decode(std::vector<char>& bytes,ConnectionHandler* conHan){
-	cout<< "got to decode something function!!" <<endl;
+	cout<< "got inside decode  function!!" <<endl;
 char* bytearr = new char[2];
 bytearr[0]=bytes[0];
 bytearr[1]=bytes[1];
@@ -197,6 +193,7 @@ bytearr[1]=bytes[1];
 		bytearr[0]=bytes[2];
 		bytearr[1]=bytes[3];
 		ACKblock=bytesToShort(bytearr);
+		cout << "ACK " << ACKblock << endl;
 		if ((wannaWrite)&(ACKblock==0)){
 			handleFileWrite(conHan);
 			wannaWrite=false;

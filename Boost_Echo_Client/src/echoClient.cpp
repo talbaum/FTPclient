@@ -27,9 +27,11 @@ public:
 	void reader(){
 				vector<char> bytes;
 				while (!disconnectNow){ // stay online until?
-					if (!thisHandler->getLine(bytes)) {
+					if (thisHandler->getLine(bytes)==false) {
 						std::cout << "Disconnected. Exiting...\n" << std::endl;
-						return;
+						disconnectNow=true;
+						boost::this_thread::interruption_point();
+						break;
 					}
 					bytes.resize(bytes.size()-1);
 					ConnectionHandler * tmpthis = thisHandler;
@@ -47,10 +49,11 @@ public:
 	        char buf[bufsize];
 	        std::cin.getline(buf, bufsize);
 			std::string line(buf);
+
 			//int len=line.length();
 	        if (!thisHandler->sendLine(line)||(thisHandler->encoderDecoder->wantDisconnect())) {
 	            std::cout << "Disconnected. Exiting...\n" << std::endl;
-	            break;
+	            return;
 	        }
 	    }
 	}
@@ -93,4 +96,3 @@ int main (int argc, char *argv[]) {
 
     return 0;
 }
-

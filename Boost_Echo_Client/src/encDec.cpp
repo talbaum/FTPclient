@@ -42,27 +42,29 @@ char* encDec::sendFunction(string& line){
 	cout << "sendfuction entered" << endl;
 	char* ans = NULL;
 	int index=0;
-	while ((line.size()<index)&&((line.at(index)!=' ')||(line.at(index)!='/n'))){
-		command=+(line.at(index));
+	while ((line.size()>index)&&(line.at(index)!=' ')){
+		command=command+line.at(index);
 		index++;
 	}
 
 	if (command.compare("LOGRQ")){
 		cout << "sendfuction entered LOGRQ " << endl;
-		ans=CommonPacketWithString(line.substr(index));
+		cout << command << endl;
+		cout << index << endl;
+		ans=CommonPacketWithString(line.substr(index+1));
 		encDec::shortToBytes(7,ans);
 	}
 
 	else if (command.compare("DELRQ")){
 		cout << "sendfuction entered DELRQ " << endl;
-		ans=CommonPacketWithString(command.substr(index));
+		ans=CommonPacketWithString(command.substr(index+1));
 		encDec::shortToBytes(8,ans);
 	}
 
 	else if (command.compare("RRQ")){
 		cout << "sendfuction entered RRQ " << endl;
 		nameOfFile=command.substr(index,command.size()-1);
-		ans=CommonPacketWithString(command.substr(index));
+		ans=CommonPacketWithString(command.substr(index+1));
 		encDec::shortToBytes(1,ans);
 	}
 
@@ -70,7 +72,7 @@ char* encDec::sendFunction(string& line){
 		cout << "sendfuction entered WRQ " << endl;
 		nameOfFile=command.substr(index,command.size()-1);
 		wannaWrite=true;
-		ans=CommonPacketWithString(command.substr(index));
+		ans=CommonPacketWithString(command.substr(index+1));
 		encDec::shortToBytes(2,ans);
 	}
 
@@ -98,6 +100,7 @@ char* encDec::sendFunction(string& line){
 
 char* encDec::CommonPacketWithString(string myLine){
 	char* ans= NULL;
+
 	if (myLine.size()<1){
 		//wrong command error
 		cout << "wrong command was entered" <<endl;
@@ -105,10 +108,10 @@ char* encDec::CommonPacketWithString(string myLine){
 	else{
 		char* packet = new char[2+myLine.size()+1];
 		//encDec::shortToBytes(7,packet);
-		unsigned int index=2;
+		unsigned int index=0;
 		std::string NAME;
 
-		while ((myLine.size()>index) & (myLine.at(index)!=' ')){
+		while ((myLine.size()>index) && (myLine.at(index)!=' ')){
 			NAME.push_back(myLine.at(index));
 			index++;
 		}
@@ -121,14 +124,17 @@ char* encDec::CommonPacketWithString(string myLine){
 			char* packet2 = encDec::stringToBytes(NAME);
 			index=2;
 			int index2=0;
-			while (index<sizeof(&packet)){
+			while (index2<sizeof(NAME)){
 				packet[index]=packet2[index2];
 				index++;
 				index2++;
 			}
+			index++;
+			packet[index]='0';
 		ans = packet;
 		}
 	}
+
 	return ans;
 }
 

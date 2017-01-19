@@ -63,7 +63,7 @@ char* encDec::sendFunction(string& line){
 
 	else if (command.compare("RRQ")){
 		cout << "sendfuction entered RRQ " << endl;
-		nameOfFile=command.substr(index,command.size()-1);
+		nameOfFile=command.substr(index+1,line.size()-1);
 		ans=CommonPacketWithString(command.substr(index+1));
 		encDec::shortToBytes(1,ans);
 	}
@@ -91,7 +91,7 @@ char* encDec::sendFunction(string& line){
 		encDec::shortToBytes(10,ans);
 	}
 	else{
-		//wrong command error
+		cout << "you entered a wrong command" << endl;
 	}
 
 	return ans;
@@ -124,13 +124,14 @@ char* encDec::CommonPacketWithString(string myLine){
 			char* packet2 = encDec::stringToBytes(NAME);
 			index=2;
 			int index2=0;
-			while (index2<sizeof(NAME)){
+			while (index2<NAME.length()){
 				packet[index]=packet2[index2];
 				index++;
 				index2++;
 			}
 			index++;
 			packet[index]='0';
+			cout << index << endl;
 		ans = packet;
 		}
 	}

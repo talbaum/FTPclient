@@ -106,8 +106,12 @@ bool ConnectionHandler::getLine(std::vector<char> bytes) {
 
 bool ConnectionHandler::sendLine(std::string& line) {
 	char* ans = this->encoderDecoder->sendFunction(line);
-	short OP = this->encoderDecoder->bytesToShort(ans);
 
+	if (ans==NULL){
+			return false;
+	}
+	else{
+		short OP = this->encoderDecoder->bytesToShort(ans);
 	switch (OP){
 	case 1: //read request
 		break;
@@ -129,6 +133,7 @@ bool ConnectionHandler::sendLine(std::string& line) {
 	}
 
 	return true;
+	}
 }
  
 //not in use!!!!

@@ -35,6 +35,10 @@ public:
 					bytes.resize(bytes.size()-1);
 					ConnectionHandler * tmpthis = thisHandler;
 					thisHandler->encoderDecoder->decode(bytes,tmpthis);
+					if (bytes.empty()){
+						//DISCONNECT
+
+					}
 				}
 
 	}
@@ -45,7 +49,7 @@ public:
 	        char buf[bufsize];
 	        std::cin.getline(buf, bufsize);
 			std::string line(buf);
-			int len=line.length();
+			//int len=line.length();
 	        if (!thisHandler->sendLine(line)) {
 	            std::cout << "Disconnected. Exiting...\n" << std::endl;
 	            break;
@@ -66,8 +70,7 @@ int main (int argc, char *argv[]) {
     
 
     ConnectionHandler thisHandler(host, port);
-    //ConnectionHandler* thihandler = &thisHandler;
-    //thisHandler = &connectionHandler1;
+
     if (!thisHandler.connect()) {
         std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
         return 1;

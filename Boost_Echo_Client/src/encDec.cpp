@@ -20,6 +20,7 @@ int len=0;
 int OP;
 bool expectDir=false;
 bool wannaWrite=false;
+bool disconnect=false;
 int ACKblock=-1;
 string nameOfFile="";
 vector<char> fileToRead;
@@ -46,22 +47,26 @@ char* encDec::sendFunction(string& line){
 	}
 
 	if (command.compare("LOGRQ")){
+		cout << "sendfuction entered LOGRQ " << endl;
 		ans=CommonPacketWithString(line.substr(index));
 		encDec::shortToBytes(7,ans);
 	}
 
 	else if (command.compare("DELRQ")){
+		cout << "sendfuction entered DELRQ " << endl;
 		ans=CommonPacketWithString(command.substr(index));
 		encDec::shortToBytes(8,ans);
 	}
 
 	else if (command.compare("RRQ")){
+		cout << "sendfuction entered RRQ " << endl;
 		nameOfFile=command.substr(index,command.size()-1);
 		ans=CommonPacketWithString(command.substr(index));
 		encDec::shortToBytes(1,ans);
 	}
 
 	else if (command.compare("WRQ")){
+		cout << "sendfuction entered WRQ " << endl;
 		nameOfFile=command.substr(index,command.size()-1);
 		wannaWrite=true;
 		ans=CommonPacketWithString(command.substr(index));
@@ -69,7 +74,7 @@ char* encDec::sendFunction(string& line){
 	}
 
 	else if (command.compare("DIRQ")){
-		//ans=DIRQ(command.substr(index));
+		cout << "sendfuction entered DIRQ " << endl;
 		ans= new char[2];
 		encDec::shortToBytes(6,ans);
 		expectDir=true;
@@ -77,7 +82,8 @@ char* encDec::sendFunction(string& line){
 	}
 
 	else if (command.compare("DISC")){
-		//ans=DISC(command.substr(index));
+		cout << "sendfuction entered DISC " << endl;
+		disconnect=true;
 		ans= new char[2];
 		encDec::shortToBytes(10,ans);
 	}
@@ -93,6 +99,7 @@ char* encDec::CommonPacketWithString(string myLine){
 	char* ans= NULL;
 	if (myLine.size()<1){
 		//wrong command error
+		cout << "wrong command was entered" <<endl;
 	}
 	else{
 		char* packet = new char[2+myLine.size()+1];
@@ -184,6 +191,11 @@ bytearr[1]=bytes[1];
 		ACKblock=bytesToShort(bytearr);
 		if ((wannaWrite)&(ACKblock==0)){
 			handleFileWrite(conHan);
+			wannaWrite=false;
+		}
+		if (disconnect){
+			bytes.clear();
+			return bytes;
 		}
 		break;
 

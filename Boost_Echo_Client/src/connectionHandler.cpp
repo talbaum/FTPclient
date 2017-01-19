@@ -47,6 +47,7 @@ bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
 	boost::system::error_code error;
     try {
         while (!error && bytesToRead > tmp ) {
+        	cout << "tmp is: " << tmp <<endl;
 			tmp += socket_.read_some(boost::asio::buffer(bytes+tmp, bytesToRead-tmp), error);			
         }
 		if(error)
@@ -55,6 +56,7 @@ bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
         return false;
     }
+    cout << "tmp is: " << tmp <<endl;
     return true;
 }
 
@@ -79,86 +81,65 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
     cout <<tmp << endl;
     return true;
 }
-
-void ConnectionHandler::getFromServer(){
-
-}
-void ConnectionHandler::SendToServer(){
-
-}
  
 bool ConnectionHandler::getLine(std::vector<char> bytes) {
-	//std::vector<char> ans;
-    //return getFrameAscii(line, '\n');
-	//char* bytes[] = new char[512];
-	//int index=0;
-    char ch;
-        // Stop when we encounter the null character.
-        // Notice that the null character is not appended to the frame string.
-        try {
-    		do{
-    			getBytes(&ch, 1);
-    			bytes.push_back(ch);
-    			//bytes[index]= ;
-                //frame.append(1, ch);
-            }while (ch!='\0');
-        } catch (std::exception& e) {
-            std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
-            return false;
-        }
-        return true;
+    return getFrameAscii(bytes, '\0');
 }
 
 bool ConnectionHandler::sendLine(std::string& line) {
 	char* ans = this->encoderDecoder->sendFunction(line);
 	int packetsize = this->encoderDecoder->Getsizeofpacket();
-	cout << "get after sendfunction" << endl;
+	cout << "finished sendfunction" << endl;
 	if (ans==NULL){
 			return false;
 	}
 	else{
 		short OP = this->encoderDecoder->bytesToShort(ans);
-	switch (OP){
-	case 1: //read request
-		return sendBytes(ans, packetsize);
-		break;
+		switch (OP){
+			case 1: //read request
+				cout << "sendLine: read request" <<endl;
+				return sendBytes(ans, packetsize);
+				break;
 
-	case 2: //write request
-		return sendBytes(ans, packetsize);
-		break;
+			case 2: //write request
+				cout << "sendLine: write request" <<endl;
+				return sendBytes(ans, packetsize);
+				break;
 
-	case 7: // login request
-		cout << "sendLine:login op" <<endl;
-		return sendBytes(ans, packetsize);
-		break;
+			case 7: // login request
+				cout << "sendLine:login op" <<endl;
+				return sendBytes(ans, packetsize);
+				break;
 
-	case 8: //
-		return sendBytes(ans, packetsize);
-		break;
+			case 8: // delete
+				cout << "sendLine: delete request" <<endl;
+				return sendBytes(ans, packetsize);
+				break;
 
-	case 10: //
-		return sendBytes(ans, packetsize);
-		break;
-	}
-
+			case 10: // disc
+				cout << "sendLine: disco request" <<endl;
+				return sendBytes(ans, packetsize);
+				break;
+		}
 	return true;
 	}
 }
  
 //not in use!!!!
-bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
+bool ConnectionHandler::getFrameAscii(std::vector<char> frame, char delimiter) {
     char ch;
     // Stop when we encounter the null character. 
     // Notice that the null character is not appended to the frame string.
     try {
 		do{
 			getBytes(&ch, 1);
-            frame.append(1, ch);
+            frame.insert(frame.begin(),ch);
         }while (delimiter != ch);
     } catch (std::exception& e) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
         return false;
     }
+    cout << frame.size() <<endl;
     return true;
 }
  

@@ -11,9 +11,9 @@ class Task{
 private:
 	int _id;
 	ConnectionHandler* thisHandler;
-
+	bool disconnectNow;
 public:
-	Task (int number, ConnectionHandler* Handler) : _id(number),thisHandler(Handler){	}
+	Task (int number, ConnectionHandler* Handler) : _id(number),thisHandler(Handler),disconnectNow(false){	}
 
 	void operator()(){
 		if (this->_id==1){
@@ -25,9 +25,8 @@ public:
 	}
 
 	void reader(){
-
 				vector<char> bytes;
-				while (1){ // stay online until?
+				while (!disconnectNow){ // stay online until?
 					if (!thisHandler->getLine(bytes)) {
 						std::cout << "Disconnected. Exiting...\n" << std::endl;
 						return;
@@ -36,20 +35,20 @@ public:
 					ConnectionHandler * tmpthis = thisHandler;
 					thisHandler->encoderDecoder->decode(bytes,tmpthis);
 					if (bytes[0]==-1){
-						//DISCONNECT
+						disconnectNow=true;//DISCONNECT
 					}
 				}
 
 	}
 
 	void writer(){
-	    while (1) {
+	    while (!disconnectNow) {
 	        const short bufsize = 1024;
 	        char buf[bufsize];
 	        std::cin.getline(buf, bufsize);
 			std::string line(buf);
 			//int len=line.length();
-	        if (!thisHandler->sendLine(line)) {
+	        if (!thisHandler->sendLine(line)||(thisHandler->encoderDecoder->wantDisconnect())) {
 	            std::cout << "Disconnected. Exiting...\n" << std::endl;
 	            break;
 	        }
@@ -91,9 +90,6 @@ int main (int argc, char *argv[]) {
     	    th1.join();
     	    th2.join();
     }
-
-//here we should create the threads and run reader and writer.
-
 
     return 0;
 }

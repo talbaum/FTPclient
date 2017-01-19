@@ -45,7 +45,7 @@ char* encDec::sendFunction(string& line){
 	string command("");
 	cout << "sendfuction entered" << endl;
 	char* ans = NULL;
-	int index=0;
+	unsigned int index=0;
 	while ((line.size()>index)&&(line.at(index)!=' ')){
 		command=command+line.at(index);
 		index++;
@@ -134,7 +134,7 @@ char* encDec::CommonPacketWithString(string myLine){
 			cout << "NAME IS" << NAME << endl;
 			char* packet2 = encDec::stringToBytes(NAME);
 			index=2;
-			int index2=0;
+			unsigned int index2=0;
 			while (index2<NAME.length()){
 				packet[index]=packet2[index2];
 				index++;
@@ -146,7 +146,7 @@ char* encDec::CommonPacketWithString(string myLine){
 
 			//unsigned char* uc;
 
-			for (int i=0;i< 2+myLine.size()+1;i++){
+			for (unsigned int i=0;i< 2+myLine.size()+1;i++){
 				cout <<"char" << i <<"is:" << packet[i] << endl;
 			}
 		ans = packet;
@@ -156,26 +156,6 @@ char* encDec::CommonPacketWithString(string myLine){
 	return ans;
 }
 
-
-char* encDec::RRQ(std::string myLine){
-
-	return 0;
-}
-
-char* encDec::WRQ(std::string myLine){
-
-	return 0;
-}
-
-char* encDec::DIRQ(std::string myLine){
-
-	return 0;
-}
-
-char* DISC(std::string myLine){
-
-	return 0;
-}
 
 char* encDec::stringToBytes(std::string myLine){
 	std::vector<char> bytes(myLine.begin(), myLine.end());
@@ -198,6 +178,7 @@ void encDec::shortToBytes(short num, char* bytesArr)
 }
 
 char* encDec::decode(std::vector<char>& bytes,ConnectionHandler* conHan){
+	cout<< "got to decode something function!!" <<endl;
 char* bytearr = new char[2];
 bytearr[0]=bytes[0];
 bytearr[1]=bytes[1];
@@ -378,6 +359,10 @@ char* encDec::makeACK (int block){
 	bytearr[3]=bytearr2[1];
 
 	return bytearr;
+}
+
+bool encDec::wantDisconnect(){
+	return disconnect;
 }
 
 

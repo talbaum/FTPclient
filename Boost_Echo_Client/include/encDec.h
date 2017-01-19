@@ -29,10 +29,6 @@ public:
 	short bytesToShort(char* bytesArr); //takes 2 bytes and make them a short (for OP and block)
 	void shortToBytes(short num, char* bytesArr); //takes a short and make it bytes to send to server.
 	char* stringToBytes(std::string myLine); //takes a string and convert to byte array.
-	char* DISC(std::string myLine);
-	char* DIRQ(std::string myLine);
-	char* WRQ(std::string myLine);
-	char* RRQ(std::string myLine);
 	char* CommonPacketWithString(std::string myLine);
 	void handleFileRead(std::vector<char>& bytes1,ConnectionHandler* conHan);
 	void handleFileWrite(ConnectionHandler* conHan);
@@ -41,6 +37,7 @@ public:
 	void handleDIR(std::vector<char>& bytes1);
 	char* makeACK (int block);
 	int Getsizeofpacket();
+	bool wantDisconnect();
 };
 
 #endif /* SRC_ENCDEC_H_ */

@@ -61,11 +61,13 @@ bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
 
 bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
     int tmp = 0;
+    int counter=0;
 	boost::system::error_code error;
 	cout << "in sendbytes with " <<bytesToWrite <<"bytes to write and the bytes array is " << bytes[6] <<endl;
     try {
         while (!error && bytesToWrite > tmp ) {
 			tmp += socket_.write_some(boost::asio::buffer(bytes + tmp, bytesToWrite - tmp), error);
+			counter++;
         }
 		if(error)
 			throw boost::system::system_error(error);
@@ -73,6 +75,8 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
         return false;
     }
+    cout <<counter << endl;
+    cout <<tmp << endl;
     return true;
 }
 

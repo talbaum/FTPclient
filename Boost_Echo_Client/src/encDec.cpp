@@ -26,6 +26,7 @@ string nameOfFile="";
 vector<char> fileToRead;
 int lastblockofdata=0;
 ConnectionHandler* conHan;
+int sizeofpacket=0;
 
 encDec::encDec() {
 	//this.bytes[] = new char[len];
@@ -37,6 +38,9 @@ encDec::~encDec() {
 	// TODO Auto-generated destructor stub
 }
 
+int encDec::Getsizeofpacket(){
+	return sizeofpacket;
+}
 char* encDec::sendFunction(string& line){
 	string command("");
 	cout << "sendfuction entered" << endl;
@@ -47,28 +51,31 @@ char* encDec::sendFunction(string& line){
 		index++;
 	}
 
-	if (command.compare("LOGRQ")){
+	if (command=="LOGRQ"){
 		cout << "sendfuction entered LOGRQ " << endl;
 		cout << command << endl;
 		cout << index << endl;
 		ans=CommonPacketWithString(line.substr(index+1));
+		cout <<ans[6] << endl;
 		encDec::shortToBytes(7,ans);
+		//encDec::shortToBytes(7,ans);
+		cout <<bytesToShort(ans) << endl;
 	}
 
-	else if (command.compare("DELRQ")){
+	else if (command=="DELRQ"){
 		cout << "sendfuction entered DELRQ " << endl;
 		ans=CommonPacketWithString(command.substr(index+1));
 		encDec::shortToBytes(8,ans);
 	}
 
-	else if (command.compare("RRQ")){
+	else if (command=="RRQ"){
 		cout << "sendfuction entered RRQ " << endl;
 		nameOfFile=command.substr(index+1,line.size()-1);
 		ans=CommonPacketWithString(command.substr(index+1));
 		encDec::shortToBytes(1,ans);
 	}
 
-	else if (command.compare("WRQ")){
+	else if (command=="WRQ"){
 		cout << "sendfuction entered WRQ " << endl;
 		nameOfFile=command.substr(index,command.size()-1);
 		wannaWrite=true;
@@ -76,24 +83,26 @@ char* encDec::sendFunction(string& line){
 		encDec::shortToBytes(2,ans);
 	}
 
-	else if (command.compare("DIRQ")){
+	else if (command=="DIRQ"){
 		cout << "sendfuction entered DIRQ " << endl;
 		ans= new char[2];
 		encDec::shortToBytes(6,ans);
 		expectDir=true;
+		sizeofpacket=2;
 
 	}
 
-	else if (command.compare("DISC")){
+	else if (command=="DISC"){
 		cout << "sendfuction entered DISC " << endl;
 		disconnect=true;
 		ans= new char[2];
 		encDec::shortToBytes(10,ans);
+		sizeofpacket=2;
 	}
 	else{
 		cout << "you entered a wrong command" << endl;
 	}
-
+	//cout << ans << " and the length of ans" << ans[5] << endl;
 	return ans;
 }
 
@@ -106,7 +115,8 @@ char* encDec::CommonPacketWithString(string myLine){
 		cout << "wrong command was entered" <<endl;
 	}
 	else{
-		char* packet = new char[2+myLine.size()+1];
+		sizeofpacket = 2+myLine.size()+1;
+		char* packet = new char[sizeofpacket];
 		//encDec::shortToBytes(7,packet);
 		unsigned int index=0;
 		std::string NAME;
@@ -121,6 +131,7 @@ char* encDec::CommonPacketWithString(string myLine){
 			//error - wrong command
 		}
 		else{
+			cout << "NAME IS" << NAME << endl;
 			char* packet2 = encDec::stringToBytes(NAME);
 			index=2;
 			int index2=0;
@@ -129,9 +140,15 @@ char* encDec::CommonPacketWithString(string myLine){
 				index++;
 				index2++;
 			}
-			index++;
+			//index++;
 			packet[index]='0';
-			cout << index << endl;
+			cout << "index of last 0 is "<< index << endl;
+
+			//unsigned char* uc;
+
+			for (int i=0;i< 2+myLine.size()+1;i++){
+				cout <<"char" << i <<"is:" << packet[i] << endl;
+			}
 		ans = packet;
 		}
 	}

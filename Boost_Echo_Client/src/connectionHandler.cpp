@@ -62,6 +62,7 @@ bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
 bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
     int tmp = 0;
 	boost::system::error_code error;
+	cout << "in sendbytes with " <<bytesToWrite <<"bytes to write and the bytes array is " << bytes[6] <<endl;
     try {
         while (!error && bytesToWrite > tmp ) {
 			tmp += socket_.write_some(boost::asio::buffer(bytes + tmp, bytesToWrite - tmp), error);
@@ -106,6 +107,7 @@ bool ConnectionHandler::getLine(std::vector<char> bytes) {
 
 bool ConnectionHandler::sendLine(std::string& line) {
 	char* ans = this->encoderDecoder->sendFunction(line);
+	int packetsize = this->encoderDecoder->Getsizeofpacket();
 	cout << "get after sendfunction" << endl;
 	if (ans==NULL){
 			return false;
@@ -114,21 +116,24 @@ bool ConnectionHandler::sendLine(std::string& line) {
 		short OP = this->encoderDecoder->bytesToShort(ans);
 	switch (OP){
 	case 1: //read request
+		return sendBytes(ans, packetsize);
 		break;
 
 	case 2: //write request
+		return sendBytes(ans, packetsize);
 		break;
 
 	case 7: // login request
-		return sendBytes(ans, sizeof(ans));
+		cout << "sendLine:login op" <<endl;
+		return sendBytes(ans, packetsize);
 		break;
 
 	case 8: //
-		return sendBytes(ans, sizeof(ans));
+		return sendBytes(ans, packetsize);
 		break;
 
 	case 10: //
-		return sendBytes(ans, sizeof(ans));
+		return sendBytes(ans, packetsize);
 		break;
 	}
 

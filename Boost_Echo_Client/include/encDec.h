@@ -40,6 +40,7 @@ public:
 	void handleBroadcast(std::vector<char>& bytes1);
 	void handleDIR(std::vector<char>& bytes1);
 	char* makeACK (int block);
+	int Getsizeofpacket();
 };
 
 #endif /* SRC_ENCDEC_H_ */

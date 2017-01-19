@@ -39,9 +39,10 @@ encDec::~encDec() {
 
 char* encDec::sendFunction(string& line){
 	string command("");
+	cout << "sendfuction entered" << endl;
 	char* ans = NULL;
 	int index=0;
-	while ((line.at(index)!=' ')|(line.at(index)!='/n')){
+	while ((line.size()<index)&&((line.at(index)!=' ')||(line.at(index)!='/n'))){
 		command=+(line.at(index));
 		index++;
 	}
@@ -112,6 +113,8 @@ char* encDec::CommonPacketWithString(string myLine){
 			index++;
 		}
 		if (NAME.size()!=myLine.size()){
+			cout << NAME << "..." << myLine <<endl;
+			cout << "wrong command was entered" <<endl;
 			//error - wrong command
 		}
 		else{
@@ -194,8 +197,8 @@ bytearr[1]=bytes[1];
 			wannaWrite=false;
 		}
 		if (disconnect){
-			bytes.clear();
-			return bytes;
+			//bytes.clear();
+			bytearr[0]=-1;
 		}
 		break;
 

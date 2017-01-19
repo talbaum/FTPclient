@@ -7,6 +7,7 @@
 //#include "../include/encDec.h"
 using boost::asio::ip::tcp;
 class encDec;
+
 class ConnectionHandler {
 private:
 	const std::string host_;

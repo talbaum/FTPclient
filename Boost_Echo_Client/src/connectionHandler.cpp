@@ -86,7 +86,7 @@ bool ConnectionHandler::getLine(std::vector<char> bytes) {
 	//std::vector<char> ans;
     //return getFrameAscii(line, '\n');
 	//char* bytes[] = new char[512];
-	int index=0;
+	//int index=0;
     char ch;
         // Stop when we encounter the null character.
         // Notice that the null character is not appended to the frame string.
@@ -106,7 +106,7 @@ bool ConnectionHandler::getLine(std::vector<char> bytes) {
 
 bool ConnectionHandler::sendLine(std::string& line) {
 	char* ans = this->encoderDecoder->sendFunction(line);
-
+	cout << "get after sendfunction" << endl;
 	if (ans==NULL){
 			return false;
 	}

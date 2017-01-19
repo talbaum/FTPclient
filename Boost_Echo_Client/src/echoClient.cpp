@@ -35,9 +35,8 @@ public:
 					bytes.resize(bytes.size()-1);
 					ConnectionHandler * tmpthis = thisHandler;
 					thisHandler->encoderDecoder->decode(bytes,tmpthis);
-					if (bytes.empty()){
+					if (bytes[0]==-1){
 						//DISCONNECT
-
 					}
 				}
 
@@ -69,7 +68,13 @@ int main (int argc, char *argv[]) {
     short port = atoi(argv[2]);
     
 
-    ConnectionHandler thisHandler(host, port);
+    //ConnectionHandler thisHandler(host, port);
+    //char* thisip = "132.73.204.16";
+    char* thisip = "132.73.204.16";
+
+    		short thisport = atoi("8888");
+
+    ConnectionHandler thisHandler(thisip, thisport);
 
     if (!thisHandler.connect()) {
         std::cerr << "Cannot connect to " << host << ":" << port << std::endl;

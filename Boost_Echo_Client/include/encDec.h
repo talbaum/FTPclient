@@ -11,6 +11,7 @@
 #define SRC_ENCDEC_H_
 using namespace std;
 class ConnectionHandler;
+
 class encDec {
 private:
 	char bytes[];

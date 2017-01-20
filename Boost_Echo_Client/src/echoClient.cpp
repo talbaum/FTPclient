@@ -53,13 +53,14 @@ public:
 	        char buf[bufsize];
 	        std::cin.getline(buf, bufsize);
 			std::string line(buf);
-			int len=line.length();
+
 	        if (!thisHandler->sendLine(line)&&(thisHandler->encoderDecoder->wantDisconnect())) {
 	        	//cout << "going to disconnection!" << endl;
 	            std::cout << "Disconnected. Exiting...\n" << std::endl;
 	            return;
 	        }
-	        std::cout << "Sent " << len+1 << " bytes to server" << std::endl;
+	        //int len=line.length();
+	        //std::cout << "Sent " << len << " bytes to server" << std::endl;
 	    }
 	}
 };

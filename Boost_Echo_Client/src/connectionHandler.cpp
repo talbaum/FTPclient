@@ -140,6 +140,7 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
         do{
             if (getBytes(&ch, 1))
             frame.append(1, ch);
+            cout << "frame got: " << frame.size() <<endl;
         }while (delimiter != ch);
     } catch (std::exception& e) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;

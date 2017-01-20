@@ -55,7 +55,8 @@ char* encDec::sendFunction(string& line){
 
 	if ((command=="LOGRQ")&&(line.size()>5)){
 		cout << "sendfuction entered LOGRQ " << endl;
-		ans=CommonPacketWithString(line.substr(index+1));
+		ans=CommonPacketWithString(7,line.substr(index+1));
+
 		if (ans!=NULL){
 		encDec::shortToBytes(7,ans);
 		waitForLog=true;
@@ -64,16 +65,22 @@ char* encDec::sendFunction(string& line){
 
 	else if ((command=="DELRQ")&&(line.size()>5)){
 		cout << "sendfuction entered DELRQ " << endl;
-		ans=CommonPacketWithString(line.substr(index+1));
+		ans=CommonPacketWithString(8,line.substr(index+1));
 		encDec::shortToBytes(8,ans);
 	}
 
 	else if ((command=="RRQ")&&(line.size()>3)){
 		cout << "sendfuction entered RRQ " << endl;
 		nameOfFile=line.substr(index+1);
-		cout << "after substr" << endl;
+		cout << "after substr " << nameOfFile<<endl;
 		if (nameOfFile.size()>0){
-		ans=CommonPacketWithString(nameOfFile);
+		ans=CommonPacketWithString(1,nameOfFile);
+
+		for(int i=0;i<20;i++){
+			cout <<*(ans+i)<<endl;
+		}
+
+
 		encDec::shortToBytes(1,ans);
 		}
 		else{
@@ -86,7 +93,7 @@ char* encDec::sendFunction(string& line){
 		nameOfFile=line.substr(index+1);
 		if (nameOfFile.size()>0){
 		wannaWrite=true;
-		ans=CommonPacketWithString(nameOfFile);
+		ans=CommonPacketWithString(2,nameOfFile);
 		encDec::shortToBytes(2,ans);
 		}
 		else{
@@ -104,6 +111,9 @@ char* encDec::sendFunction(string& line){
 
 	else if (command=="DISC"){
 		cout << "sendfuction entered DISC " << endl;
+
+
+
 		waitForDisconnect=true;
 		ans= new char[2];
 		encDec::shortToBytes(10,ans);
@@ -118,52 +128,42 @@ char* encDec::sendFunction(string& line){
 }
 
 
-char* encDec::CommonPacketWithString(string myLine){
+char* encDec::CommonPacketWithString(short opCode, string myLine){
 	char* ans= NULL;
 
 	if (myLine.size()<1){
 		cout << "wrong command was entered" <<endl;
 	}
 	else{
-		sizeofpacket = 2+myLine.size()+1;
-		///sizeofpacket = 2+myLine.size();
+		sizeofpacket = 2+myLine.length()+1;
 		char* packet = new char[sizeofpacket];
 		unsigned int index=0;
-		std::string NAME;
+		char opCodeBytes[2];
+		shortToBytes(opCode,opCodeBytes);
+		packet[0]=opCodeBytes[0];
+		packet[1]=opCodeBytes[1];
+		char* name = encDec::stringToBytes(myLine);
+		for(int i=0;i<myLine.length();i++){
+			packet[i+2]=name[i];
+		}
+		packet[2+myLine.length()]='0';
+		cout << "packer created is this many bytes: "<< 2+myLine.length()+1 << endl;
 
-		while ((myLine.size()>index) && (myLine.at(index)!=' ')){
-			NAME.push_back(myLine.at(index));
-			index++;
-		}
-		if (NAME.size()!=myLine.size()){
-			cout << "wrong command was entered" <<endl;
-			//error - wrong command
-		}
-		else{
-			char* packet2 = encDec::stringToBytes(NAME);
-			index=2;
-			unsigned int index2=0;
-			while (index2<NAME.length()){
-				packet[index]=packet2[index2];
-				index++;
-				index2++;
-			}
-			packet[index]='0';
-			cout << "packer created is this many bytes: "<< index+1 << endl;
-
-		ans = packet;
-		}
+		return packet;
 	}
 
-	return ans;
+	return NULL;
 }
 
 
 char* encDec::stringToBytes(std::string myLine){
-	std::vector<char> bytes(myLine.begin(), myLine.end());
-	bytes.push_back('0');
-	char *c = &bytes[0];
-	return c;
+	char* bytes = new char[myLine.length()+1];
+	for(int i=0; i<myLine.length();i++)
+		bytes[i] = myLine[i];
+	bytes[myLine.length()] = '0';
+/*	bytes.push_back('0');*/
+/*	char *c = &bytes[0];*/
+	return bytes;
 }
 
 short encDec::bytesToShort(char* bytesArr)
@@ -191,12 +191,14 @@ char* bytearr = new char[2];
 	switch (OP2){
 	case 3:
 		if (expectDir){
+			cout << "expectDir " << endl;
 			handleDIR(bytes);
 			expectDir=false;
 		}
-		else
+		else{
 			handleFileRead(bytes,conHan);
-		break;
+			cout <<"not expectDir " << endl;
+		}break;
 	case 4:
 		bytearr[0]=bytes[2];
 		bytearr[1]=bytes[3];
@@ -205,7 +207,7 @@ char* bytearr = new char[2];
 
 		if (waitForDisconnect){
 			//bytes.clear();
-			disconnect=true;
+/*			this->disconnect=true;*/
 			bytearr[0]=-1;
 		}
 		else if ((wannaWrite)&(ACKblock==0)){
@@ -275,6 +277,7 @@ void encDec::handleError(std::string& bytes){
 	cout << "Error" << errorCode << " - " <<ErrorDesc <<endl;
 }
 void encDec::handleFileWrite(ConnectionHandler* conHan){
+	try{
 	wannaWrite=false;
 	const char* name = nameOfFile.c_str();
 	std::ifstream file(name , std::ios::binary);
@@ -325,6 +328,10 @@ void encDec::handleFileWrite(ConnectionHandler* conHan){
 		}
 		packet.clear();
 		curData.clear();
+}
+	}
+	catch(exception e){
+		cout << "Writing error occurred. please enter another command"<<endl;
 	}
 }
 
@@ -376,6 +383,11 @@ char* encDec::makeACK (int block){
 bool encDec::wantDisconnect(){
 	return disconnect;
 }
+
+bool encDec::waitForDisc(){
+	return waitForDisconnect;
+}
+
 
 
 

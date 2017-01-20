@@ -111,6 +111,12 @@ bool ConnectionHandler::sendLine(std::string& line) {
 				break;
 			case 7: // login request
 				cout << "sendLine:login op, packetsize:"<< packetsize <<endl;
+				for(int i=0;i<packetsize;i++){
+					cout << *(ans + i)<<endl;
+				}
+				cout.flush();
+				cout << "check" << endl;
+				cout.flush();
 				return sendBytes(ans, packetsize);
 				break;
 
@@ -172,7 +178,7 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
 void ConnectionHandler::close() {
     try{
         socket_.close();
-        encoderDecoder->disconnect=true;
+       // encoderDecoder->disconnect=true;
     } catch (...) {
         std::cout << "closing failed: connection already closed" << std::endl;
     }

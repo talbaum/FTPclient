@@ -29,7 +29,7 @@ public:
 	short bytesToShort(char* bytesArr); //takes 2 bytes and make them a short (for OP and block)
 	void shortToBytes(short num, char* bytesArr); //takes a short and make it bytes to send to server.
 	char* stringToBytes(std::string myLine); //takes a string and convert to byte array.
-	char* CommonPacketWithString(std::string myLine);
+	char* CommonPacketWithString(short opCpde, std::string myLine);
 	void handleFileRead(std::string& bytes1,ConnectionHandler* conHan);
 	void handleFileWrite(ConnectionHandler* conHan);
 	void handleError(std::string& bytes1);
@@ -38,6 +38,7 @@ public:
 	char* makeACK (int block);
 	int Getsizeofpacket();
 	bool wantDisconnect();
+	bool waitForDisc();
 	bool disconnect=false;
 };
 

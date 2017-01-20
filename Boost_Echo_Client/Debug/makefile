@@ -40,19 +40,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: client
+all: Boost_Echo_Client
 
 # Tool invocations
-client: $(OBJS) $(USER_OBJS)
+Boost_Echo_Client: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++ -L/usr/include/boost -o "client" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -Lusr/include/boost -o "Boost_Echo_Client" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(CC_DEPS)$(C++_DEPS)$(EXECUTABLES)$(C_UPPER_DEPS)$(CXX_DEPS)$(OBJS)$(CPP_DEPS)$(C_DEPS) client
+	-$(RM) $(CC_DEPS)$(C++_DEPS)$(EXECUTABLES)$(C_UPPER_DEPS)$(CXX_DEPS)$(OBJS)$(CPP_DEPS)$(C_DEPS) Boost_Echo_Client
 	-@echo ' '
 
 .PHONY: all clean dependents

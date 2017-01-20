@@ -90,8 +90,7 @@ bool ConnectionHandler::sendLine(std::string& line) {
 	int packetsize = this->encoderDecoder->Getsizeofpacket();
 	cout << "finished sendfunction" << endl;
 	if (ans==NULL){
-		cout << "ans==NULL" << endl;
-			return false;
+		return true;
 	}
 	else{
 		short OP = this->encoderDecoder->bytesToShort(ans);

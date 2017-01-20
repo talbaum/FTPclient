@@ -41,10 +41,11 @@ public:
 					ConnectionHandler * tmpthis = thisHandler;
 					thisHandler->encoderDecoder->decode(answer,tmpthis);
 					if ((len>0)&&(answer[0]==-1)){
+						cout << "going to disconnection!" << endl;
 						disconnectNow=true;//DISCONNECT
 					}
 					}
-				}
+}
 
 
 	void writer(){
@@ -59,8 +60,6 @@ public:
 	            std::cout << "Disconnected. Exiting...\n" << std::endl;
 	            return;
 	        }
-	        //int len=line.length();
-	        //std::cout << "Sent " << len << " bytes to server" << std::endl;
 	    }
 	}
 };

@@ -56,21 +56,24 @@ char* encDec::sendFunction(string& line){
 	if ((command=="LOGRQ")&&(line.size()>5)){
 		cout << "sendfuction entered LOGRQ " << endl;
 		ans=CommonPacketWithString(line.substr(index+1));
+		if (ans!=NULL){
 		encDec::shortToBytes(7,ans);
 		waitForLog=true;
+		}
 	}
 
 	else if ((command=="DELRQ")&&(line.size()>5)){
 		cout << "sendfuction entered DELRQ " << endl;
-		ans=CommonPacketWithString(command.substr(index+1));
+		ans=CommonPacketWithString(line.substr(index+1));
 		encDec::shortToBytes(8,ans);
 	}
 
 	else if ((command=="RRQ")&&(line.size()>3)){
 		cout << "sendfuction entered RRQ " << endl;
-		nameOfFile=command.substr(index+1,line.size()-1);
+		nameOfFile=line.substr(index+1);
+		cout << "after substr" << endl;
 		if (nameOfFile.size()>0){
-		ans=CommonPacketWithString(command.substr(index+1));
+		ans=CommonPacketWithString(nameOfFile);
 		encDec::shortToBytes(1,ans);
 		}
 		else{
@@ -80,10 +83,10 @@ char* encDec::sendFunction(string& line){
 
 	else if ((command=="WRQ")&&(line.size()>3)){
 		cout << "sendfuction entered WRQ " << endl;
-		nameOfFile=command.substr(index,command.size()-1);
+		nameOfFile=line.substr(index);
 		if (nameOfFile.size()>0){
 		wannaWrite=true;
-		ans=CommonPacketWithString(command.substr(index+1));
+		ans=CommonPacketWithString(nameOfFile);
 		encDec::shortToBytes(2,ans);
 		}
 		else{
@@ -123,7 +126,7 @@ char* encDec::CommonPacketWithString(string myLine){
 	}
 	else{
 		sizeofpacket = 2+myLine.size()+1;
-		//sizeofpacket = 2+myLine.size();
+		///sizeofpacket = 2+myLine.size();
 		char* packet = new char[sizeofpacket];
 		unsigned int index=0;
 		std::string NAME;

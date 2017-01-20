@@ -17,7 +17,7 @@ private:
 
  
 public:
-
+	bool disc;
     ConnectionHandler(std::string host, short port);
     virtual ~ConnectionHandler();
     encDec *encoderDecoder;

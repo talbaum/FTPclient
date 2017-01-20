@@ -38,6 +38,7 @@ public:
 	char* makeACK (int block);
 	int Getsizeofpacket();
 	bool wantDisconnect();
+	bool disconnect=false;
 };
 
 #endif /* SRC_ENCDEC_H_ */

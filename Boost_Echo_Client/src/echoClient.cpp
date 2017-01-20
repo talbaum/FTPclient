@@ -27,9 +27,9 @@ public:
 	void reader(){
 
 				while (!disconnectNow){ // stay online until?
-					//vector<char> bytes;
 					 std::string answer;
 					if (!thisHandler->getLine(answer)) {
+						cout << "going to disconnection!" << endl;
 						std::cout << "Disconnected. Exiting...\n" << std::endl;
 						disconnectNow=true;
 						thisHandler->close();
@@ -56,8 +56,8 @@ public:
 	        std::cin.getline(buf, bufsize);
 			std::string line(buf);
 
-			//int len=line.length();
-	        if (!thisHandler->sendLine(line)||(thisHandler->encoderDecoder->wantDisconnect())) {
+	        if (!thisHandler->sendLine(line)&&(thisHandler->encoderDecoder->wantDisconnect())) {
+	        	//cout << "going to disconnection!" << endl;
 	            std::cout << "Disconnected. Exiting...\n" << std::endl;
 	            return;
 	        }
@@ -80,7 +80,7 @@ int main (int argc, char *argv[]) {
     char* thisip = "132.73.194.21"; //me
     //char* thisip = "132.73.204.16";
 
-    		short thisport = atoi("8888");
+    short thisport = atoi("8888");
 
     ConnectionHandler thisHandler(thisip, thisport);
 
@@ -90,7 +90,6 @@ int main (int argc, char *argv[]) {
     }
     else{
     	cout << "connected!" <<endl;
-    	boost::mutex mutex;
     	    Task task1(1,&thisHandler);
     	    Task task2(2,&thisHandler);
 

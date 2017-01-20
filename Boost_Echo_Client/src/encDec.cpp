@@ -17,9 +17,10 @@
 using namespace std;
 
 int len=0;
-short OP;
+//short OP;
 bool expectDir=false;
 bool wannaWrite=false;
+bool waitForDisconnect=false;
 bool disconnect=false;
 int ACKblock=-1;
 string nameOfFile="";
@@ -94,12 +95,11 @@ char* encDec::sendFunction(string& line){
 		encDec::shortToBytes(6,ans);
 		expectDir=true;
 		sizeofpacket=2;
-
 	}
 
 	else if (command=="DISC"){
 		cout << "sendfuction entered DISC " << endl;
-		disconnect=true;
+		waitForDisconnect=true;
 		ans= new char[2];
 		encDec::shortToBytes(10,ans);
 		sizeofpacket=2;
@@ -163,9 +163,9 @@ char* encDec::stringToBytes(std::string myLine){
 short encDec::bytesToShort(char* bytesArr)
 {
     short result = (short)((bytesArr[0] & 0xff) << 8);
-    cout << "second line in bytes to short" <<endl;
+    //cout << "second line in bytes to short" <<endl;
     result += (short)(bytesArr[1] & 0xff);
-    cout << "3 line in bytes to short" <<endl;
+    //cout << "3 line in bytes to short" <<endl;
     return result;
 }
 
@@ -201,8 +201,9 @@ char* bytearr = new char[2];
 			handleFileWrite(conHan);
 			wannaWrite=false;
 		}
-		if (disconnect){
+		if (waitForDisconnect){
 			//bytes.clear();
+			disconnect=true;
 			bytearr[0]=-1;
 		}
 		break;
@@ -216,7 +217,7 @@ char* bytearr = new char[2];
 		break;
 
 	default:
-		cout <<"something went wrong, maybe bad packet, this is your OP: " << OP <<endl;
+		cout <<"something went wrong, maybe bad packet, this is your OP: " << OP2 <<endl;
 		break;
 	}
 
@@ -258,8 +259,10 @@ void encDec::handleError(std::string& bytes){
 	bytearr[0]=bytes[2];
 	bytearr[1]=bytes[3];
 	int errorCode = bytesToShort(bytearr);
-	bytes.resize(6,bytes.size()-1);
-	string ErrorDesc(bytes.begin(),bytes.end());
+	//bytes.resize(6,bytes.size());
+	//cout << "msg size is " <<bytes.size() <<endl;
+
+	string ErrorDesc = bytes.substr(4,bytes.size());
 	cout << "Error" << errorCode << " - " <<ErrorDesc <<endl;
 }
 void encDec::handleFileWrite(ConnectionHandler* conHan){

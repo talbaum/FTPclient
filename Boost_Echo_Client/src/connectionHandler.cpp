@@ -37,6 +37,7 @@ bool ConnectionHandler::connect() {
     }
     catch (std::exception& e) {
         std::cerr << "Connection failed (Error: " << e.what() << ')' << std::endl;
+        //encoderDecoder->disconnect=true;
         return false;
     }
     return true;
@@ -53,6 +54,7 @@ bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
             throw boost::system::system_error(error);
     } catch (std::exception& e) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
+        //encoderDecoder->disconnect=true;
         return false;
     }
     return true;
@@ -70,6 +72,7 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
             throw boost::system::system_error(error);
     } catch (std::exception& e) {
         std::cerr << "recv failed  3 (Error: " << e.what() << ')' << std::endl;
+        //encoderDecoder->disconnect=true;
         return false;
     }
     return true;
@@ -128,13 +131,19 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
     try {
         do{
         	cout << "before getbytes: " <<endl;
-            getBytes(&ch, 1);
+            if (!getBytes(&ch, 1)){
+            	if (frame.size()>2)
+            		return true;
+            	else
+            		return false;
+            }
             cout << "after getbytes: " << ch << endl;
             frame.append(1, ch);
             cout << "bytes got: " << frame.size() <<endl;
         }while (delimiter != ch);
     } catch (std::exception& e) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
+        //encoderDecoder->disconnect=true;
         return false;
     }
     return true;
@@ -162,6 +171,7 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
 void ConnectionHandler::close() {
     try{
         socket_.close();
+        encoderDecoder->disconnect=true;
     } catch (...) {
         std::cout << "closing failed: connection already closed" << std::endl;
     }

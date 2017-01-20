@@ -22,6 +22,7 @@ bool expectDir=false;
 bool wannaWrite=false;
 bool waitForDisconnect=false;
 bool disconnect=false;
+bool waitForLog=false;
 int ACKblock=-1;
 string nameOfFile="";
 vector<char> fileToRead;
@@ -56,6 +57,7 @@ char* encDec::sendFunction(string& line){
 		cout << "sendfuction entered LOGRQ " << endl;
 		ans=CommonPacketWithString(line.substr(index+1));
 		encDec::shortToBytes(7,ans);
+		waitForLog=true;
 	}
 
 	else if ((command=="DELRQ")&&(line.size()>5)){
@@ -121,6 +123,7 @@ char* encDec::CommonPacketWithString(string myLine){
 	}
 	else{
 		sizeofpacket = 2+myLine.size()+1;
+		//sizeofpacket = 2+myLine.size();
 		char* packet = new char[sizeofpacket];
 		unsigned int index=0;
 		std::string NAME;
@@ -176,11 +179,10 @@ void encDec::shortToBytes(short num, char* bytesArr)
 }
 
 char* encDec::decode(std::string& bytes,ConnectionHandler* conHan){
-	cout<< "got inside decode  function!! with string size:" << bytes.size() <<endl;
+	cout<< "got inside decode function, with string size:" << bytes.size() <<endl;
 char* bytearr = new char[2];
 	bytearr[0]=bytes.at(0);
 	bytearr[1]=bytes.at(1);
-	cout << "before bytesToShort "  << bytearr[0] << bytearr[1] << endl;
 	short OP2 = bytesToShort(bytearr);
 	cout << "OP found: " << OP2 <<endl;
 	switch (OP2){
@@ -197,14 +199,18 @@ char* bytearr = new char[2];
 		bytearr[1]=bytes[3];
 		ACKblock=bytesToShort(bytearr);
 		cout << "ACK " << ACKblock << endl;
-		if ((wannaWrite)&(ACKblock==0)){
-			handleFileWrite(conHan);
-			wannaWrite=false;
-		}
+
 		if (waitForDisconnect){
 			//bytes.clear();
 			disconnect=true;
 			bytearr[0]=-1;
+		}
+		else if ((wannaWrite)&(ACKblock==0)){
+					handleFileWrite(conHan);
+					wannaWrite=false;
+				}
+		else if (waitForLog){
+			cout <<"you are now logged in to the server!"  <<endl;
 		}
 		break;
 

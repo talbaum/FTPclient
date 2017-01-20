@@ -29,7 +29,7 @@ public:
 				while (!disconnectNow){ // stay online until?
 					 std::string answer;
 					if (!thisHandler->getLine(answer)) {
-						cout << "going to disconnection!" << endl;
+						cout << "going to disconnection after false getLine!" << endl;
 						std::cout << "Disconnected. Exiting...\n" << std::endl;
 						disconnectNow=true;
 						thisHandler->close();
@@ -37,7 +37,6 @@ public:
 						break;
 					}
 					int len=answer.length();
-					//if (len>2){
 					answer.resize(len-1);
 					ConnectionHandler * tmpthis = thisHandler;
 					thisHandler->encoderDecoder->decode(answer,tmpthis);
@@ -45,7 +44,6 @@ public:
 						disconnectNow=true;//DISCONNECT
 					}
 					}
-
 				}
 
 
@@ -55,12 +53,13 @@ public:
 	        char buf[bufsize];
 	        std::cin.getline(buf, bufsize);
 			std::string line(buf);
-
+			int len=line.length();
 	        if (!thisHandler->sendLine(line)&&(thisHandler->encoderDecoder->wantDisconnect())) {
 	        	//cout << "going to disconnection!" << endl;
 	            std::cout << "Disconnected. Exiting...\n" << std::endl;
 	            return;
 	        }
+	        std::cout << "Sent " << len+1 << " bytes to server" << std::endl;
 	    }
 	}
 };

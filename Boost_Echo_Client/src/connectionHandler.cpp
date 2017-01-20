@@ -53,7 +53,7 @@ bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
         if(error)
             throw boost::system::system_error(error);
     } catch (std::exception& e) {
-        std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
+        std::cerr << "recv failed 2(Error: " << e.what() << ')' << std::endl;
         //encoderDecoder->disconnect=true;
         return false;
     }
@@ -63,6 +63,7 @@ bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
 
 bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
     int tmp = 0;
+    cout << "sending " << bytesToWrite << "bytes to server!" << endl;
     boost::system::error_code error;
     try {
         while (!error && bytesToWrite > tmp ) {
@@ -89,35 +90,42 @@ bool ConnectionHandler::sendLine(std::string& line) {
 	int packetsize = this->encoderDecoder->Getsizeofpacket();
 	cout << "finished sendfunction" << endl;
 	if (ans==NULL){
+		cout << "ans==NULL" << endl;
 			return false;
 	}
 	else{
 		short OP = this->encoderDecoder->bytesToShort(ans);
 		switch (OP){
 			case 1: //read request
-				cout << "sendLine: read request" <<endl;
+				cout << "sendLine: read request, packetsize:"<< packetsize <<endl;
 				return sendBytes(ans, packetsize);
 				break;
 
 			case 2: //write request
-				cout << "sendLine: write request" <<endl;
+				cout << "sendLine: write request, packetsize:"<< packetsize <<endl;
 				return sendBytes(ans, packetsize);
 				break;
 
+			case 6:
+				cout << "sendLine:dirq op, packetsize:"<< packetsize <<endl;
+				return sendBytes(ans, packetsize);
+				break;
 			case 7: // login request
-				cout << "sendLine:login op" <<endl;
+				cout << "sendLine:login op, packetsize:"<< packetsize <<endl;
 				return sendBytes(ans, packetsize);
 				break;
 
 			case 8: // delete
-				cout << "sendLine: delete request" <<endl;
+				cout << "sendLine: delete request, packetsize:"<< packetsize <<endl;
 				return sendBytes(ans, packetsize);
 				break;
 
 			case 10: // disc
-				cout << "sendLine: disco request" <<endl;
+				cout << "sendLine: disco request, packetsize:"<< packetsize <<endl;
 				return sendBytes(ans, packetsize);
 				break;
+			default:
+				cout << "wrong op code from sendfunction" <<endl;
 		}
 	return true;
 	}
@@ -130,22 +138,15 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
     // Notice that the null character is not appended to the frame string.
     try {
         do{
-        	cout << "before getbytes: " <<endl;
-            if (!getBytes(&ch, 1)){
-            	if (frame.size()>2)
-            		return true;
-            	else
-            		return false;
-            }
-            cout << "after getbytes: " << ch << endl;
+            if (getBytes(&ch, 1))
             frame.append(1, ch);
-            cout << "bytes got: " << frame.size() <<endl;
         }while (delimiter != ch);
     } catch (std::exception& e) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
         //encoderDecoder->disconnect=true;
         return false;
     }
+    cout << "bytes got: " << frame.size() <<endl;
     return true;
 }
 

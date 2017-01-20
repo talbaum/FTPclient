@@ -83,7 +83,7 @@ char* encDec::sendFunction(string& line){
 
 	else if ((command=="WRQ")&&(line.size()>3)){
 		cout << "sendfuction entered WRQ " << endl;
-		nameOfFile=line.substr(index);
+		nameOfFile=line.substr(index+1);
 		if (nameOfFile.size()>0){
 		wannaWrite=true;
 		ans=CommonPacketWithString(nameOfFile);

@@ -25,19 +25,24 @@ public:
 	}
 
 	void reader(){
-				vector<char> bytes;
+
 				while (!disconnectNow){ // stay online until?
+					vector<char> bytes;
 					if (thisHandler->getLine(bytes)==false) {
 						std::cout << "Disconnected. Exiting...\n" << std::endl;
 						disconnectNow=true;
 						boost::this_thread::interruption_point();
 						break;
 					}
-					bytes.resize(bytes.size()-1);
+					int len = bytes.size();
+					cout << "out of while" << endl;
+					if (len>2){
+					bytes.resize(len-1);
 					ConnectionHandler * tmpthis = thisHandler;
 					thisHandler->encoderDecoder->decode(bytes,tmpthis);
 					if (bytes[0]==-1){
 						disconnectNow=true;//DISCONNECT
+					}
 					}
 				}
 

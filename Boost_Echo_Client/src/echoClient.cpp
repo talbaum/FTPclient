@@ -27,26 +27,27 @@ public:
 	void reader(){
 
 				while (!disconnectNow){ // stay online until?
-					vector<char> bytes;
-					if (thisHandler->getLine(bytes)==false) {
+					//vector<char> bytes;
+					 std::string answer;
+					if (!thisHandler->getLine(answer)) {
 						std::cout << "Disconnected. Exiting...\n" << std::endl;
 						disconnectNow=true;
+						thisHandler->close();
 						boost::this_thread::interruption_point();
 						break;
 					}
-					int len = bytes.size();
-					cout << "out of while" << endl;
-					if (len>2){
-					bytes.resize(len-1);
+					int len=answer.length();
+					//if (len>2){
+					answer.resize(len-1);
 					ConnectionHandler * tmpthis = thisHandler;
-					thisHandler->encoderDecoder->decode(bytes,tmpthis);
-					if (bytes[0]==-1){
+					thisHandler->encoderDecoder->decode(answer,tmpthis);
+					if ((len>0)&&(answer[0]==-1)){
 						disconnectNow=true;//DISCONNECT
 					}
 					}
+
 				}
 
-	}
 
 	void writer(){
 	    while (!disconnectNow) {

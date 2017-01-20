@@ -17,7 +17,7 @@
 using namespace std;
 
 int len=0;
-int OP;
+short OP;
 bool expectDir=false;
 bool wannaWrite=false;
 bool disconnect=false;
@@ -51,19 +51,19 @@ char* encDec::sendFunction(string& line){
 		index++;
 	}
 
-	if (command=="LOGRQ"){
+	if ((command=="LOGRQ")&&(line.size()>5)){
 		cout << "sendfuction entered LOGRQ " << endl;
 		ans=CommonPacketWithString(line.substr(index+1));
 		encDec::shortToBytes(7,ans);
 	}
 
-	else if (command=="DELRQ"){
+	else if ((command=="DELRQ")&&(line.size()>5)){
 		cout << "sendfuction entered DELRQ " << endl;
 		ans=CommonPacketWithString(command.substr(index+1));
 		encDec::shortToBytes(8,ans);
 	}
 
-	else if (command=="RRQ"){
+	else if ((command=="RRQ")&&(line.size()>3)){
 		cout << "sendfuction entered RRQ " << endl;
 		nameOfFile=command.substr(index+1,line.size()-1);
 		if (nameOfFile.size()>0){
@@ -75,7 +75,7 @@ char* encDec::sendFunction(string& line){
 		}
 	}
 
-	else if (command=="WRQ"){
+	else if ((command=="WRQ")&&(line.size()>3)){
 		cout << "sendfuction entered WRQ " << endl;
 		nameOfFile=command.substr(index,command.size()-1);
 		if (nameOfFile.size()>0){
@@ -163,7 +163,9 @@ char* encDec::stringToBytes(std::string myLine){
 short encDec::bytesToShort(char* bytesArr)
 {
     short result = (short)((bytesArr[0] & 0xff) << 8);
+    cout << "second line in bytes to short" <<endl;
     result += (short)(bytesArr[1] & 0xff);
+    cout << "3 line in bytes to short" <<endl;
     return result;
 }
 
@@ -173,14 +175,15 @@ void encDec::shortToBytes(short num, char* bytesArr)
     bytesArr[1] = (num & 0xFF);
 }
 
-char* encDec::decode(std::vector<char>& bytes,ConnectionHandler* conHan){
-	cout<< "got inside decode  function!!" <<endl;
+char* encDec::decode(std::string& bytes,ConnectionHandler* conHan){
+	cout<< "got inside decode  function!! with string size:" << bytes.size() <<endl;
 char* bytearr = new char[2];
-bytearr[0]=bytes[0];
-bytearr[1]=bytes[1];
-	this->OP = bytesToShort(bytearr);
-
-	switch (OP){
+	bytearr[0]=bytes.at(0);
+	bytearr[1]=bytes.at(1);
+	cout << "before bytesToShort "  << bytearr[0] << bytearr[1] << endl;
+	short OP2 = bytesToShort(bytearr);
+	cout << "OP found: " << OP2 <<endl;
+	switch (OP2){
 	case 3:
 		if (expectDir){
 			handleDIR(bytes);
@@ -220,7 +223,7 @@ bytearr[1]=bytes[1];
 return bytearr;
 }
 
-void encDec::handleBroadcast(std::vector<char>& bytes){
+void encDec::handleBroadcast(std::string& bytes){
 	char delOrAdd = bytes[2];
 	int whichOne = delOrAdd;
 	string msg1;
@@ -235,14 +238,14 @@ void encDec::handleBroadcast(std::vector<char>& bytes){
 	cout << "BCAST <" << msg1 << "><" << File << ">" << endl;
 }
 
-void encDec::handleDIR(std::vector<char>& bytes){
+void encDec::handleDIR(std::string& bytes){
 	bytes.resize(2,bytes.size()-1);
 	string name;
 	char end = '\0';
 	char cur;
 	while (!bytes.empty()){
-		cur=bytes.back();
-		bytes.pop_back();
+		cur=bytes.at(0);
+		bytes.resize(bytes.size()-1);
 		if ((cur==end)&(!name.empty()))
 			cout << name << endl;
 		else
@@ -250,7 +253,7 @@ void encDec::handleDIR(std::vector<char>& bytes){
 	}
 }
 
-void encDec::handleError(std::vector<char>& bytes){
+void encDec::handleError(std::string& bytes){
 	char* bytearr = new char[2];
 	bytearr[0]=bytes[2];
 	bytearr[1]=bytes[3];
@@ -313,7 +316,7 @@ void encDec::handleFileWrite(ConnectionHandler* conHan){
 	}
 }
 
-void encDec::handleFileRead(std::vector<char>& bytes,ConnectionHandler* conHan){
+void encDec::handleFileRead(std::string& bytes,ConnectionHandler* conHan){
 	char* bytearr = new char[2];
 	bytearr[0]=bytes[2];
 	bytearr[1]=bytes[3];

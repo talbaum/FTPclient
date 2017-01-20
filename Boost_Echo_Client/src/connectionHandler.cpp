@@ -52,7 +52,7 @@ bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
         if(error)
             throw boost::system::system_error(error);
     } catch (std::exception& e) {
-        std::cerr << "recv failed  1 (Error: " << e.what() << ')' << std::endl;
+        std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
         return false;
     }
     return true;
@@ -75,9 +75,9 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
     return true;
 }
  
-bool ConnectionHandler::getLine(std::vector<char>& bytes) {
+bool ConnectionHandler::getLine(std::string& bytes) {
 	//cout << "getting line " << endl;
-	char deli = '\0';
+	char deli = '/0';
     return getFrameAscii(bytes, deli);
 }
 
@@ -121,26 +121,22 @@ bool ConnectionHandler::sendLine(std::string& line) {
 }
  
 //not in use!!!!
-bool ConnectionHandler::getFrameAscii(std::vector<char>& frame, char delimiter) {
+bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
     char ch;
     // Stop when we encounter the null character. 
     // Notice that the null character is not appended to the frame string.
     try {
-		do{
-			 if (!getBytes(&ch, 1)){
-				 return false;
-			 }
-			 if (delimiter != ch){
-            frame.push_back(ch);
-            cout <<"the size is " << frame.size()  << ",the added char is : "<< ch <<endl;
-			 }
+        do{
+        	cout << "before getbytes: " <<endl;
+            getBytes(&ch, 1);
+            cout << "after getbytes: " << ch << endl;
+            frame.append(1, ch);
+            cout << "bytes got: " << frame.size() <<endl;
         }while (delimiter != ch);
     } catch (std::exception& e) {
-    	cout <<"inside error!!" <<endl;
-        std::cerr << "recv failed 4 (Error: " << e.what() << ')' << std::endl;
+        std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
         return false;
     }
-    cout <<"RETURNING true" <<endl;
     return true;
 }
 

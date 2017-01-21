@@ -23,6 +23,7 @@ ConnectionHandler::~ConnectionHandler() {
     close();
     //delete encoderDecoder*;
 }
+
  
 bool ConnectionHandler::connect() {
 	std::cout << "Starting connect to "

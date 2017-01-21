@@ -242,15 +242,14 @@ void encDec::handleBroadcast(std::string& bytes){
 	char delOrAdd = bytes[2];
 	int whichOne = delOrAdd;
 	string msg1;
-	string msg2;
+
 	if (whichOne==1)
 		msg1="add";
 	else if (whichOne==0)
 		msg1="del";
-	bytes.resize(3,bytes.size()-1);
-	string File(bytes.begin(),bytes.end());
+	string msg2 = bytes.substr(3);
 
-	cout << "BCAST <" << msg1 << "><" << File << ">" << endl;
+	cout << "BCAST <" << msg1 << "><" << msg2 << ">" << endl;
 }
 
 void encDec::handleDIR(std::string& bytes){
@@ -277,8 +276,6 @@ void encDec::handleError(std::string& bytes){
 	bytearr[0]=bytes[2];
 	bytearr[1]=bytes[3];
 	int errorCode = bytesToShort(bytearr);
-	//bytes.resize(6,bytes.size());
-	//cout << "msg size is " <<bytes.size() <<endl;
 
 	string ErrorDesc = bytes.substr(4,bytes.size());
 	cout << "Error" << errorCode << " - " <<ErrorDesc <<endl;
@@ -310,7 +307,8 @@ void encDec::handleFileWrite(ConnectionHandler* conHan){
 	while (!fileInVector.empty()){
 		char* OpIn = new char[2];
 		shortToBytes(3,OpIn);
-		packet.insert(packet.begin(),OpIn[0],OpIn[1]);
+		packet.push_back(OpIn[0]);
+		packet.insert(packet.end(),OpIn[1]);
 		if (fileInVector.size()>512){
 			for (int i=0;i<512;i++){
 				char tmp = fileInVector.front();
@@ -328,15 +326,17 @@ void encDec::handleFileWrite(ConnectionHandler* conHan){
 
 		char* sizeIn = new char[2];
 		shortToBytes(curData.size(),sizeIn);
-		packet.insert(packet.end(),sizeIn[0],sizeIn[1]);
+		packet.insert(packet.end(),sizeIn[0]);
+		packet.insert(packet.end(),sizeIn[1]);
 		char* blockIn = new char[2];
-		shortToBytes(block,OpIn);
+		shortToBytes(block,blockIn);
 		block++;
-		packet.insert(packet.end(),blockIn[0],blockIn[1]);
-		packet.insert(packet.end(),curData.begin(),curData.end());
+		packet.insert(packet.end(),blockIn[0]);
+		packet.insert(packet.end(),blockIn[1]);
+        packet.insert(packet.end(),curData.begin(),curData.end());
 		conHan->sendBytes(&packet[0],packet.size());
 
-		cout << "sent data packet number: "<< block-1 <<endl;
+		cout << "sent data packet number: "<< block-1<<endl;
 		while (ACKblock!=block-1){
 			//wait!!
 		}

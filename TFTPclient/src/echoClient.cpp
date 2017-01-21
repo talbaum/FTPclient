@@ -71,13 +71,7 @@ int main (int argc, char *argv[]) {
 	std::string host = argv[1];
 	short port = atoi(argv[2]);
 
-
-	//ConnectionHandler thisHandler(host, port);
-	char* thisip = "132.73.194.21"; //me
-
-	short thisport = atoi("8888");
-
-	ConnectionHandler thisHandler(thisip, thisport);
+	ConnectionHandler thisHandler(host, port);
 
 	if (!thisHandler.connect()) {
 		std::cerr << "Cannot connect to " << host << ":" << port << std::endl;

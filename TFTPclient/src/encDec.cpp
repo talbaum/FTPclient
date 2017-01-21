@@ -297,10 +297,10 @@ void encDec::handleFileWrite(ConnectionHandler* conHan){
         packet.insert(packet.end(),curData.begin(),curData.end());
 		conHan->sendBytes(&packet[0],packet.size());
 
+
 		packet.clear();
 		curData.clear();
-
-	}
+		}
 	}
 
 

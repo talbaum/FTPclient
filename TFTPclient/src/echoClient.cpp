@@ -76,8 +76,8 @@ int main (int argc, char *argv[]) {
 
 
 	//ConnectionHandler thisHandler(host, port);
-	//char* thisip = "132.73.194.21"; //me
-	char* thisip = "192.168.1.103";
+	char* thisip = "132.73.194.21"; //me
+	//char* thisip = "132.73.204.16";
 
 	short thisport = atoi("8888");
 

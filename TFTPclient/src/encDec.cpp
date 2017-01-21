@@ -254,17 +254,21 @@ void encDec::handleBroadcast(std::string& bytes){
 }
 
 void encDec::handleDIR(std::string& bytes){
-	bytes.resize(2,bytes.size()-1);
+	//bytes.substr(6);
+	cout << "dir length without OP: " << bytes.size()-6 << endl;
 	string name;
 	char end = '\0';
 	char cur;
-	while (!bytes.empty()){
-		cur=bytes.at(0);
-		bytes.resize(bytes.size()-1);
-		if ((cur==end)&(!name.empty()))
+	unsigned int index=6;
+	while (index<bytes.size()){
+		cur=bytes.at(index);
+		index++;
+		if (cur==end){
 			cout << name << endl;
+		name="";
+		}
 		else
-			name=+cur;
+			name.append(1,cur);
 	}
 }
 
@@ -294,14 +298,15 @@ void encDec::handleFileWrite(ConnectionHandler* conHan){
 
 	vector<char> fileInVector;
 	cout << "before reserve! fileSize:" << fileSize << endl;
-	fileInVector.reserve(fileSize);
-
+	fileInVector.reserve(fileSize+1);
+	cout << "after reserve! fileSize:" << fileSize << endl;
 	fileInVector.insert(fileInVector.begin(), std::istream_iterator<char>(file),std::istream_iterator<char>());
-
+	//fileInVector.push_back('/0');
 	int block=1;
 	vector<char> packet;
 	vector<char> curData;
 	//int size;
+
 	while (!fileInVector.empty()){
 		char* OpIn = new char[2];
 		shortToBytes(3,OpIn);
@@ -320,8 +325,9 @@ void encDec::handleFileWrite(ConnectionHandler* conHan){
 				curData.push_back(tmp);
 			}
 		}
+
 		char* sizeIn = new char[2];
-		shortToBytes(curData.size(),OpIn);
+		shortToBytes(curData.size(),sizeIn);
 		packet.insert(packet.end(),sizeIn[0],sizeIn[1]);
 		char* blockIn = new char[2];
 		shortToBytes(block,OpIn);

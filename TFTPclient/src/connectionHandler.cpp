@@ -44,7 +44,6 @@ bool ConnectionHandler::connect() {
 }
  
 bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
-	cout << "inside getBytes" << endl;
     size_t tmp = 0;
     boost::system::error_code error;
     try {
@@ -64,26 +63,22 @@ bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
 
 bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
     int tmp = 0;
-    cout << "sending " << bytesToWrite << "bytes to server!" << endl;
+
     boost::system::error_code error;
     try {
         while (!error && bytesToWrite > tmp ) {
             tmp += socket_.write_some(boost::asio::buffer(bytes + tmp, bytesToWrite - tmp), error);
-            cout << "sending "
-            		"" << endl;
         }
         if(error)
             throw boost::system::system_error(error);
     } catch (std::exception& e) {
         std::cerr << "recv failed  3 (Error: " << e.what() << ')' << std::endl;
-        //encoderDecoder->disconnect=true;
         return false;
     }
     return true;
 }
  
 bool ConnectionHandler::getLine(std::string& bytes) {
-	//cout << "getting line " << endl;
 	unsigned char deli = '0';
     return getFrameAscii(bytes, deli);
 }
@@ -91,7 +86,6 @@ bool ConnectionHandler::getLine(std::string& bytes) {
 bool ConnectionHandler::sendLine(std::string& line) {
 	char* ans = this->encoderDecoder->sendFunction(line);
 	int packetsize = this->encoderDecoder->Getsizeofpacket();
-	cout << "finished sendfunction" << endl;
 	if (ans==NULL){
 		return true;
 	}
@@ -99,37 +93,25 @@ bool ConnectionHandler::sendLine(std::string& line) {
 		short OP = this->encoderDecoder->bytesToShort(ans);
 		switch (OP){
 			case 1: //read request
-				cout << "sendLine: read request, packetsize:"<< packetsize <<endl;
 				return sendBytes(ans, packetsize);
 				break;
 
 			case 2: //write request
-				cout << "sendLine: write request, packetsize:"<< packetsize <<endl;
 				return sendBytes(ans, packetsize);
 				break;
 
 			case 6:
-				cout << "sendLine:dirq op, packetsize:"<< packetsize <<endl;
 				return sendBytes(ans, packetsize);
 				break;
-			case 7: // login request
-				cout << "sendLine:login op, packetsize:"<< packetsize <<endl;
-				for(int i=0;i<packetsize;i++){
-					cout << *(ans + i)<<endl;
-				}
-				cout.flush();
-				cout << "check" << endl;
-				cout.flush();
+			case 7:
 				return sendBytes(ans, packetsize);
 				break;
 
 			case 8: // delete
-				cout << "sendLine: delete request, packetsize:"<< packetsize <<endl;
 				return sendBytes(ans, packetsize);
 				break;
 
 			case 10: // disc
-				cout << "sendLine: disco request, packetsize:"<< packetsize <<endl;
 				return sendBytes(ans, packetsize);
 				break;
 			default:
@@ -148,14 +130,12 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
         do{
             if (getBytes(&ch, 1))
             frame.append(1, ch);
-            cout << "frame got: " << frame.size() <<endl;
         }while (delimiter != ch);
     } catch (std::exception& e) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
         //encoderDecoder->disconnect=true;
         return false;
     }
-    cout << "bytes got: " << frame.size() <<endl;
     return true;
 }
 
@@ -181,7 +161,6 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter)
 void ConnectionHandler::close() {
     try{
         socket_.close();
-       // encoderDecoder->disconnect=true;
     } catch (...) {
         std::cout << "closing failed: connection already closed" << std::endl;
     }

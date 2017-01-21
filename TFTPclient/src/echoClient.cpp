@@ -29,7 +29,6 @@ public:
 		while (!disconnectNow){ // stay online until?
 			std::string answer;
 			if (!thisHandler->getLine(answer)) {
-				cout << "going to disconnection after false getLine!" << endl;
 				std::cout << "Disconnected. Exiting...\n" << std::endl;
 				disconnectNow=true;
 				thisHandler->close();
@@ -41,7 +40,6 @@ public:
 			ConnectionHandler * tmpthis = thisHandler;
 			answer =thisHandler->encoderDecoder->decode(answer,tmpthis);
 			if ((len>0)&&(answer[0]==-1)){
-				cout << "going to disconnection!" << endl;
 				disconnectNow=true;//DISCONNECT
 			}
 		}
@@ -54,9 +52,8 @@ public:
 			char buf[bufsize];
 			std::cin.getline(buf, bufsize);
 			std::string line(buf);
-
-			if (!thisHandler->sendLine(line)&&(thisHandler->encoderDecoder->wantDisconnect())) {
-				//cout << "going to disconnection!" << endl;
+			thisHandler->sendLine(line);
+			if ((disconnectNow)||(thisHandler->encoderDecoder->wantDisconnect())) {
 				std::cout << "Disconnected. Exiting...\n" << std::endl;
 				return;
 			}
@@ -77,7 +74,6 @@ int main (int argc, char *argv[]) {
 
 	//ConnectionHandler thisHandler(host, port);
 	char* thisip = "132.73.194.21"; //me
-	//char* thisip = "132.73.204.16";
 
 	short thisport = atoi("8888");
 

@@ -14,7 +14,6 @@ class ConnectionHandler;
 class encDec {
 private:
 	char bytes[];
-//	short OP;
 	ConnectionHandler* conHan;
 
 public:
@@ -38,7 +37,7 @@ public:
 	int Getsizeofpacket();
 	bool wantDisconnect();
 	bool waitForDisc();
-	//bool disconnect;
+	int ACKblock;
 };
 
 #endif /* SRC_ENCDEC_H_ */

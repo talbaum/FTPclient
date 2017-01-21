@@ -29,14 +29,18 @@ int lastblockofdata=0;
 ConnectionHandler* conHan;
 int sizeofpacket=0;
 
-encDec::encDec() {
-	OP=0;
-	conHan = NULL;
+encDec::encDec(): conHan(NULL){
 }
 
 encDec::~encDec() {
 	// TODO Auto-generated destructor stub
 }
+
+/*
+endDec::encDec(const encDec& enc){
+
+}
+*/
 
 int encDec::Getsizeofpacket(){
 	return sizeofpacket;
@@ -326,7 +330,7 @@ void encDec::handleFileWrite(ConnectionHandler* conHan){
 		packet.insert(packet.end(),curData.begin(),curData.end());
 		conHan->sendBytes(&packet[0],packet.size());
 
-		cout << "sent data packet number: "<< block <<endl;
+		cout << "sent data packet number: "<< block-1 <<endl;
 		while (ACKblock!=block-1){
 			//wait!!
 		}

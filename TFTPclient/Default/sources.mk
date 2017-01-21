@@ -25,4 +25,7 @@ C_DEPS :=
 SUBDIRS := \
 bin \
 src \
+TFTPclient/Default/src \
+TFTPclient/bin \
+TFTPclient/src \
 

@@ -15,7 +15,7 @@ using boost::thread;
 bool approve=false;
 encDec* encoderDecoder;
 
-ConnectionHandler::ConnectionHandler(string host, short port): host_(host), port_(port), io_service_(), socket_(io_service_){
+ConnectionHandler::ConnectionHandler(string host, short port): host_(host), port_(port), io_service_(), socket_(io_service_), encoderDecoder(new encDec()){
 	//encDec* encoderDecoder = new encDec();
 }
     
@@ -81,7 +81,8 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
  
 bool ConnectionHandler::getLine(std::string& bytes) {
 	//cout << "getting line " << endl;
-	unsigned char deli = '/0';
+	unsigned char deli = '0';
+	cout <<"deli:" << deli <<endl;
     return getFrameAscii(bytes, deli);
 }
 

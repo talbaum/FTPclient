@@ -14,13 +14,13 @@ class ConnectionHandler;
 class encDec {
 private:
 	char bytes[];
-	short OP;
-	std::string CurLine;
+//	short OP;
 	ConnectionHandler* conHan;
 
 public:
 	encDec();
 	virtual ~encDec();
+	encDec(const encDec& enc);
 	//char* encode(const std::string& s);
 	char* decode(std::string& bytes1,ConnectionHandler* conHan);
 	short getOp();

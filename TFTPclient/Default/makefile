@@ -10,6 +10,9 @@ RM := rm
 -include sources.mk
 -include src/subdir.mk
 -include bin/subdir.mk
+-include TFTPclient/src/subdir.mk
+-include TFTPclient/bin/subdir.mk
+-include TFTPclient/Default/src/subdir.mk
 -include subdir.mk
 -include objects.mk
 

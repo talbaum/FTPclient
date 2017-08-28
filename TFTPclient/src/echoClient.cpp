@@ -26,7 +26,7 @@ public:
 
 	void reader(){
 
-		while (!disconnectNow){ // stay online until?
+		while (!disconnectNow){ 
 			std::string answer;
 			if (!thisHandler->getLine(answer)) {
 				std::cout << "Disconnected. Exiting...\n" << std::endl;

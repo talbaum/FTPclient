@@ -3,7 +3,7 @@
 #include "../include/encDec.h"
 #include <boost/thread.hpp>
 using boost::asio::ip::tcp;
-//class encDec;
+
 
 using std::cin;
 using std::cout;
@@ -21,7 +21,7 @@ ConnectionHandler::ConnectionHandler(string host, short port): host_(host), port
     
 ConnectionHandler::~ConnectionHandler() {
     close();
-    //delete encoderDecoder*;
+
 }
 
  
@@ -37,7 +37,7 @@ bool ConnectionHandler::connect() {
     }
     catch (std::exception& e) {
         std::cerr << "Connection failed (Error: " << e.what() << ')' << std::endl;
-        //encoderDecoder->disconnect=true;
+      
         return false;
     }
     return true;
@@ -54,7 +54,7 @@ bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
             throw boost::system::system_error(error);
     } catch (std::exception& e) {
         std::cerr << "recv failed 2(Error: " << e.what() << ')' << std::endl;
-        //encoderDecoder->disconnect=true;
+   
         return false;
     }
     return true;
@@ -121,7 +121,7 @@ bool ConnectionHandler::sendLine(std::string& line) {
 	}
 }
  
-//not in use!!!!
+
 bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
     char ch;
     // Stop when we encounter the null character. 
@@ -133,7 +133,7 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
         }while (delimiter != ch);
     } catch (std::exception& e) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
-        //encoderDecoder->disconnect=true;
+    
         return false;
     }
     return true;

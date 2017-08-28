@@ -1,9 +1,3 @@
-/*
- * encDec.cpp
- *
- *  Created on: Jan 15, 2017
- *      Author: amit
- */
 
 #include "../include/encDec.h"
 #include "../include/connectionHandler.h"
@@ -16,7 +10,6 @@
 using namespace std;
 
 int len=0;
-//short OP;
 bool expectDir=false;
 bool wannaWrite=false;
 bool waitForDisconnect=false;
@@ -37,11 +30,6 @@ encDec::~encDec() {
 	// TODO Auto-generated destructor stub
 }
 
-/*
-endDec::encDec(const encDec& enc){
-
-}
-*/
 
 int encDec::Getsizeofpacket(){
 	return sizeofpacket;
